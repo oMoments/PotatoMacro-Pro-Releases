@@ -136,7 +136,7 @@ PickCoord(keyX, keyY, *) {
         fld[keyY].Value := my - wy
         break
     }
-    mainGui.Show("w520 h472")
+    mainGui.Show("w520 h542")
     tabs.Focus()
 }
 
@@ -157,7 +157,7 @@ PickSingleX(key, *) {
         fld[key].Value := mx - wx
         break
     }
-    mainGui.Show("w520 h472")
+    mainGui.Show("w520 h542")
     tabs.Focus()
 }
 
@@ -178,7 +178,7 @@ PickSingleY(key, tip := "", *) {
         fld[key].Value := my - wy
         break
     }
-    mainGui.Show("w520 h472")
+    mainGui.Show("w520 h542")
     tabs.Focus()
 }
 
@@ -199,7 +199,7 @@ MeasureRowH(*) {
     KeyWait "LButton"
     ToolTip
     fld["GenRowH"].Value := Abs(y2 - y1)
-    mainGui.Show("w520 h472")
+    mainGui.Show("w520 h542")
     tabs.Focus()
 }
 
@@ -256,13 +256,35 @@ SectionHeader(label, y) {
     mainGui.Add("Text", "x10 y" y " w500 cGray", label)
 }
 
+; Keybind row
+KeybindRow(label, y, key) {
+    global mainGui, fld
+    mainGui.Add("Text", "x10 y" (y+3) " w175", label)
+    fld["KB_" key] := mainGui.Add("Text", "x203 y" (y+3) " w80 cBlue", "")
+    mainGui.Add("Button", "x290 y" (y-1) " w60 h21", "Set")
+        .OnEvent("Click", RecordKey.Bind(key))
+}
+
+RecordKey(key, *) {
+    global fld, CFG
+    fld["KB_" key].Value := "Press a key..."
+    ih := InputHook()
+    ih.KeyOpt("{All}", "ES")
+    ih.Start()
+    ih.Wait()
+    k := ih.EndKey
+    IniWrite k, CFG, "Hotkeys", key
+    fld["KB_" key].Value := k
+    ApplyHotkeys()
+}
+
 ; =============================================
 ;   GUI
 ; =============================================
 mainGui := Gui("-Resize -MaximizeBox", "Potato Launcher Pro")
 mainGui.SetFont("s9", "Segoe UI")
 
-tabs := mainGui.Add("Tab3", "x0 y0 w520 h510", ["  Main  ", "  Settings  "])
+tabs := mainGui.Add("Tab3", "x0 y0 w520 h542", ["  Main  ", "  Settings  "])
 
 ; =============================================
 ;   TAB 1 — MAIN
@@ -335,7 +357,13 @@ CoordRow("• Blessing of Abundance",  362, "AscAbuX", "AscAbuY")
 CoordRow("• Blessing of Prestige",   384, "AscPreX", "AscPreY")
 CoordRow("• Ascend Confirm",         406, "AscConX", "AscConY")
 
-mainGui.Add("Button", "x10 y436 w500", "Save Settings").OnEvent("Click", SaveSettings)
+; Keybinds
+SectionHeader("Keybinds", 432)
+KeybindRow("• Start",          449, "Start")
+KeybindRow("• Stop All",       471, "Stop")
+KeybindRow("• Bring to Front", 493, "Front")
+
+mainGui.Add("Button", "x10 y518 w500", "Save Settings").OnEvent("Click", SaveSettings)
 
 ; =============================================
 ;   ASCEND CONTROLS
@@ -431,6 +459,9 @@ LoadSettings() {
     fld["AscPath"].Value    := (ascPath = 1) ? 1 : 0
     fld["AscPath2"].Value   := (ascPath = 1) ? 0 : 1
     UpdateAscendControls()
+    fld["KB_Start"].Value := IniRead(CFG, "Hotkeys", "Start", "F4")
+    fld["KB_Stop"].Value  := IniRead(CFG, "Hotkeys", "Stop",  "F5")
+    fld["KB_Front"].Value := IniRead(CFG, "Hotkeys", "Front", ".")
 }
 
 SaveSettings(*) {
@@ -515,10 +546,25 @@ StopAllWithTip(*) {
     SetTimer () => ToolTip(), -2000
 }
 
-Hotkey "F4", StartSelected
-Hotkey "F5", StopAllWithTip
-Hotkey ".",  BringToFront
+ApplyHotkeys() {
+    global fld
+    static activeKeys := []
+    for k in activeKeys
+        try Hotkey k, "Off"
+    activeKeys := []
+    pairs := Map("Start", StartSelected, "Stop", StopAllWithTip, "Front", BringToFront)
+    for settingKey, fn in pairs {
+        k := fld["KB_" settingKey].Value
+        if (k = "" || k = "Press a key...")
+            continue
+        try {
+            Hotkey k, fn
+            activeKeys.Push(k)
+        }
+    }
+}
 
 LoadSettings()
+ApplyHotkeys()
 RefreshList()
-mainGui.Show("w520 h472")
+mainGui.Show("w520 h542")
