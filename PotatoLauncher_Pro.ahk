@@ -47,7 +47,7 @@ ShowLoginDialog() {
         }
         errText.Value := "Checking..."
         if ValidateCredentials(u ":" p) {
-            FileDelete AUTH_FILE
+            try FileDelete AUTH_FILE
             FileAppend u ":" p, AUTH_FILE
             loginGui.Destroy()
         } else {
