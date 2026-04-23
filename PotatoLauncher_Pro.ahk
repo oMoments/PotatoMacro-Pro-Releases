@@ -81,6 +81,8 @@ CheckLogin()
 ;   UPDATE
 ; =============================================
 DoUpdate(*) {
+    global btnUpdate
+    btnUpdate.Visible := false
     ToolTip "Downloading update..."
     try {
         Download BASE_URL "PotatoMacro_Pro.ahk",   A_ScriptDir "\PotatoMacro_Pro.ahk"
