@@ -6,8 +6,80 @@ CFG          := A_ScriptDir "\PotatoConfig_Pro.ini"
 activeMacros := Map()
 fld          := Map()
 
-BASE_URL := "https://raw.githubusercontent.com/oMoments/PotatoMacro-Pro/master/"
+BASE_URL  := "https://raw.githubusercontent.com/oMoments/PotatoMacro-Pro-Releases/master/"
+USERS_URL := "https://gist.githubusercontent.com/oMoments/3ba25917ed7c4e2a33d19074e28c0c19/raw/users.txt"
+AUTH_FILE := A_ScriptDir "\auth.dat"
 
+; =============================================
+;   LOGIN
+; =============================================
+CheckLogin() {
+    if FileExist(AUTH_FILE) {
+        saved := ""
+        loop read AUTH_FILE
+            saved := A_LoopReadLine
+        if ValidateCredentials(saved)
+            return
+        FileDelete AUTH_FILE
+    }
+    ShowLoginDialog()
+}
+
+ShowLoginDialog() {
+    loginGui := Gui("+AlwaysOnTop -Resize", "Potato Macro Pro — Login")
+    loginGui.SetFont("s10", "Segoe UI")
+    loginGui.Add("Text", "x15 y15 w200", "Username:")
+    userEdit := loginGui.Add("Edit", "x15 y33 w200 -Theme")
+    loginGui.Add("Text", "x15 y63 w200", "Password:")
+    passEdit := loginGui.Add("Edit", "x15 y81 w200 -Theme Password")
+    errText  := loginGui.Add("Text", "x15 y111 w200 cRed", "")
+    btnLogin := loginGui.Add("Button", "x15 y130 w200", "Login")
+
+    btnLogin.OnEvent("Click", TryLogin)
+    loginGui.OnEvent("Close", (*) => ExitApp())
+
+    TryLogin(*) {
+        u := Trim(userEdit.Value)
+        p := Trim(passEdit.Value)
+        if !u || !p {
+            errText.Value := "Enter username and password."
+            return
+        }
+        errText.Value := "Checking..."
+        if ValidateCredentials(u ":" p) {
+            FileDelete AUTH_FILE
+            FileAppend u ":" p, AUTH_FILE
+            loginGui.Destroy()
+        } else {
+            errText.Value := "Invalid username or password."
+        }
+    }
+
+    loginGui.Show("w230 h165")
+    WinWaitClose "ahk_id " loginGui.Hwnd
+}
+
+ValidateCredentials(entry) {
+    try {
+        http := ComObject("WinHttp.WinHttpRequest.5.1")
+        http.Open("GET", USERS_URL, false)
+        http.Send()
+        loop parse, http.ResponseText, "`n", "`r" {
+            line := Trim(A_LoopField)
+            if (line = "" || SubStr(line, 1, 1) = "#")
+                continue
+            if (line = entry)
+                return true
+        }
+    }
+    return false
+}
+
+CheckLogin()
+
+; =============================================
+;   UPDATE
+; =============================================
 DoUpdate(*) {
     ToolTip "Downloading update..."
     try {
