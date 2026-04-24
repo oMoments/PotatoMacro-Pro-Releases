@@ -94,6 +94,8 @@ DoUpdate(*) {
         return
     }
     ToolTip
+    try FileDelete A_ScriptDir "\.just_updated"
+    FileAppend "1", A_ScriptDir "\.just_updated"
     bat := A_ScriptDir "\apply_update.bat"
     try FileDelete bat
     FileAppend '@echo off`r`ntimeout /t 1 /nobreak >nul`r`nmove /y "' A_ScriptDir '\PotatoLauncher_Pro_new.ahk" "' A_ScriptDir '\PotatoLauncher_Pro.ahk"`r`nstart "" "' A_AhkPath '" "' A_ScriptDir '\PotatoLauncher_Pro.ahk"`r`ndel "%~f0"', bat
@@ -103,6 +105,10 @@ DoUpdate(*) {
 
 CheckForUpdate() {
     global btnUpdate
+    if FileExist(A_ScriptDir "\.just_updated") {
+        FileDelete A_ScriptDir "\.just_updated"
+        return
+    }
     try {
         localVersion := ""
         loop read A_ScriptDir "\version.txt"
