@@ -1,0 +1,123 @@
+﻿===========================================
+  POTATO MACRO PRO - INSTRUCTIONS
+===========================================
+
+GETTING STARTED
+---------------
+1. Make sure AutoHotkey v2 is installed.
+2. Double-click PotatoLauncher_Pro.ahk to open the launcher.
+3. Log in with your username and password.
+4. Your Roblox window will appear in the list automatically.
+5. Go to the Settings tab and fill in your coordinates, then click Save Settings.
+6. Come back to Main, select your window, and press Start (or F4).
+
+
+SETTINGS TAB - WHAT EVERYTHING MEANS
+--------------------------------------
+
+Resolution
+  Set this to your Roblox window size. Click Auto-detect to fill it in automatically.
+
+Sell
+  Golden Potatoes Tab  - the golden potatoes tab button in the sell screen.
+  Sell All Button      - the sell all button.
+
+Generators
+  Buy Button (column X) - the X position of any green buy button in the generators list.
+  Y Top                 - the Y position of the highest visible buy button.
+  Y Bot                 - the Y position of the lowest visible buy button (should be half peeking in).
+  Row Spacing           - the pixel distance between two buy buttons. Use the + picker to measure.
+  Scroll Area           - anywhere inside the generator scroll list.
+
+Prestige
+  Prestige Now    - the Prestige Now button.
+  Prestige Confirm - the confirm button on the prestige popup.
+
+Ascend Coords (only needed if using Ascend mode)
+  Blessing of Abundance - the Abundance path button.
+  Blessing of Prestige  - the Prestige path button.
+  Ascend Confirm        - the confirm button on the ascend popup.
+
+Inventory Swap (optional)
+  Equip the best potato for prestige right before prestiging,
+  then swap back to your potato bonus potato after.
+  Prestige Potato  - click the potato that buffs prestige points.
+  Equip (prestige) - its equip button.
+  Bonus Potato     - click the potato that buffs potato gain.
+  Equip (bonus)    - its equip button.
+  Leave all four as 0 to disable this feature.
+
+Shop (optional)
+  Set up your shop coordinates here. To actually enable auto-buying,
+  you also need to check "Auto Shop (every 5 min)" on the Main tab.
+  Left Col Buy Btn  - the buy button X for the left column of items.
+  Right Col Buy Btn - the buy button X for the right column of items.
+  Y Top             - Y of the first row buy button.
+  Y Bot             - Y of the last visible row buy button.
+  Row Height        - pixel distance between two shop item rows. Use the + picker to measure.
+  Skip Rock / Useless Rock - when checked, the macro will detect and skip rock items using image recognition.
+  Leave Left Col Buy Btn as 0 to disable the shop feature entirely.
+
+Rock Images (for Skip Rocks feature)
+  The macro uses two image files to detect rocks:
+    rock.png
+    useless_rock.png
+  These must be in the same folder as the launcher.
+  You can use your own cropped screenshots of the rock icons.
+  Just name them correctly and drop them in the folder.
+  If you recapture them at a different resolution, click
+  "Reset Icon Scale (after recapture)" then Save Settings.
+
+Keybinds
+  You can change the Start, Stop All, and Bring to Front hotkeys to whatever you want.
+  Click Set next to each one and press your desired key.
+
+
+MAIN TAB
+--------
+  Auto-Find    - detects your Roblox window size automatically.
+  Start        - starts the macro on the selected window.
+  Stop All     - stops all running macros.
+  Ascend            - enable this if you want the macro to ascend after each prestige.
+                      Choose your ascend path (Blessing of Abundance or Blessing of Prestige).
+  Auto Shop         - enable this to have the macro open the shop every 5 minutes and buy
+                      everything available. Requires shop coordinates to be set in Settings.
+
+
+HOW THE LOOP WORKS
+-------------------
+Each loop the macro does the following:
+  1. Sells golden potatoes.
+  2. Buys generators (repeats several times per loop).
+  3. Waits for the right moment then sells again and prestiging.
+  4. If Inventory Swap is set up, equips the prestige potato before prestiging
+     and swaps back to the bonus potato after.
+  5. If Ascend is enabled, ascends after the prestige.
+  6. Every 5 minutes, opens the shop and buys available items
+     (only if Shop coords are set and Auto Shop is checked on the Main tab).
+
+
+UPDATES
+-------
+  When a new version is available you will see a blue Update button at the top of the launcher.
+  Click it and the update downloads and restarts automatically.
+  Your settings and coordinates are saved and will not be affected by updates.
+
+
+COORDINATE PICKER
+-----------------
+  Every coordinate has a + button next to it.
+  Click + and the launcher hides itself.
+  Then click the exact spot in your Roblox window.
+  The coordinates are filled in automatically.
+
+
+TIPS
+----
+  - Always click Save Settings after making any changes.
+  - The macro uses color detection to find green buy buttons, so make sure
+    your game is visible and not covered by other windows while running.
+  - If the macro stops buying generators, double-check your Y Bot coordinate
+    is set to a buy button that is half visible at the bottom of the list.
+
+===========================================
