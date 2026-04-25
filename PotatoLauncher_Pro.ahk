@@ -362,7 +362,15 @@ RecordKey(key, *) {
 ; =============================================
 ;   GUI
 ; =============================================
-mainGui := Gui("-Resize -MaximizeBox", "Potato Launcher Pro")
+mainGui := Gui("+Resize", "Potato Launcher Pro")
+OnMessage(0x0024, WM_GETMINMAXINFO)
+WM_GETMINMAXINFO(wParam, lParam, msg, hwnd) {
+    global mainGui
+    if (hwnd != mainGui.Hwnd)
+        return
+    NumPut("Int", 1100, lParam, 24)
+    NumPut("Int", 685,  lParam, 28)
+}
 mainGui.SetFont("s9", "Segoe UI")
 
 tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  "])
