@@ -29,6 +29,36 @@ PRESTIGE_NOW_Y := Integer(IniRead(cfg, "Prestige", "NowY",     404))
 PRESTIGE_CON_X := Integer(IniRead(cfg, "Prestige", "ConfirmX", 875))
 PRESTIGE_CON_Y := Integer(IniRead(cfg, "Prestige", "ConfirmY", 708))
 
+INV_PRES_X   := Integer(IniRead(cfg, "Inventory", "PresPotatoX", 0))
+INV_PRES_Y   := Integer(IniRead(cfg, "Inventory", "PresPotatoY", 0))
+INV_PRES_EQX := Integer(IniRead(cfg, "Inventory", "PresEquipX",  0))
+INV_PRES_EQY := Integer(IniRead(cfg, "Inventory", "PresEquipY",  0))
+INV_BON_X    := Integer(IniRead(cfg, "Inventory", "BonPotatoX",  0))
+INV_BON_Y    := Integer(IniRead(cfg, "Inventory", "BonPotatoY",  0))
+INV_BON_EQX  := Integer(IniRead(cfg, "Inventory", "BonEquipX",   0))
+INV_BON_EQY  := Integer(IniRead(cfg, "Inventory", "BonEquipY",   0))
+INV_SWAP_ON  := Integer(IniRead(cfg, "Inventory", "Enabled", 0))
+INV_ENABLED  := (INV_SWAP_ON && INV_PRES_X > 0 && INV_BON_X > 0)
+
+SHOP_BTNS := []
+loop 8 {
+    bx := Integer(IniRead(cfg, "Shop", "L2Btn" A_Index "X", 0))
+    by := Integer(IniRead(cfg, "Shop", "L2Btn" A_Index "Y", 0))
+    SHOP_BTNS.Push(Map("x", bx, "y", by))
+}
+
+SHOP_SKIP_ROCKS := Integer(IniRead(cfg, "Shop", "SkipRocks",   1))
+SHOP_AUTO       := Integer(IniRead(cfg, "Shop", "AutoEnabled", 0))
+SHOP_ENABLED    := (SHOP_AUTO && SHOP_BTNS[1]["x"] > 0)
+
+; Rock Box (offset+size from BUY anchor) — defines ImageSearch region
+SHOP_ROCK_DX := Integer(IniRead(cfg, "Shop", "RockOffX", 0))
+SHOP_ROCK_DY := Integer(IniRead(cfg, "Shop", "RockOffY", 0))
+SHOP_ROCK_W  := Integer(IniRead(cfg, "Shop", "RockW",    32))
+SHOP_ROCK_H  := Integer(IniRead(cfg, "Shop", "RockH",    32))
+
+lastShopTime := 0
+
 ASCEND_ENABLED := Integer(IniRead(cfg, "Ascend", "Enabled",        0))
 ASCEND_PATH    := Integer(IniRead(cfg, "Ascend", "Path",            1))
 ASCEND_ABU_X   := Integer(IniRead(cfg, "Ascend", "BtnAbundanceX", 654))
@@ -74,6 +104,15 @@ WiggleClick(rx, ry) {
     SendInput "{LButton Up}"
 }
 
+DirectClick(rx, ry) {
+    global WIN_X, WIN_Y
+    MouseMove WIN_X + rx, WIN_Y + ry, 3
+    Sleep 60
+    SendInput "{LButton Down}"
+    Sleep 50
+    SendInput "{LButton Up}"
+}
+
 ; =============================================
 SellGolden() {
     global WIN_X, WIN_Y, SELL_TAB_X, SELL_TAB_Y, SELL_ALL_X, SELL_ALL_Y
@@ -102,9 +141,11 @@ SellGolden() {
 }
 
 ; =============================================
-BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0, clickUp := 0) {
+BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
     global WIN_X, WIN_Y, GEN_BTN_X, GEN_ROW_HEIGHT, COLOR_GREEN, TOLERANCE
     Sleep 150
+
+    ; Coarse scan bottom→up in row steps to find deepest green button
     lowestY := -1
     y := yBot
     while (y >= yTop) {
@@ -114,24 +155,39 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0, clickUp := 0) {
         }
         y -= GEN_ROW_HEIGHT
     }
+    ; Fine scan: look below coarse position for deeper green pixels
+    if (lowestY != -1) {
+        fineY := lowestY + GEN_ROW_HEIGHT - 1
+        while (fineY > lowestY) {
+            if (fineY <= yBot && ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+fineY), COLOR_GREEN, TOLERANCE)) {
+                lowestY := fineY
+                break
+            }
+            fineY -= 2
+        }
+    }
     if (lowestY = -1)
         return
 
-    safeY := (clickUp > 0 && ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+lowestY-clickUp), COLOR_GREEN, TOLERANCE))
-        ? lowestY - clickUp : lowestY
+    ; Find button center: scan upward from lowestY until green ends, click midpoint
+    topY := lowestY
+    while (topY > yTop && ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+topY-1), COLOR_GREEN, TOLERANCE))
+        topY--
+    clickY := (topY + lowestY) // 2
+
     clickCount := 0
     loop {
         if !ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+lowestY), COLOR_GREEN, TOLERANCE)
             break
         if (maxBottomClicks > 0 && clickCount >= maxBottomClicks)
             break
-        WiggleClick(GEN_BTN_X, safeY)
+        WiggleClick(GEN_BTN_X, clickY)
         clickCount++
         Sleep 60
     }
 
     if (maxBottomClicks = 0) {
-        y2 := lowestY - GEN_ROW_HEIGHT
+        y2 := clickY - GEN_ROW_HEIGHT
         if (y2 >= yTop) {
             loop {
                 if !ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+y2), COLOR_GREEN, TOLERANCE)
@@ -140,7 +196,7 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0, clickUp := 0) {
                 Sleep 60
             }
         }
-        y3 := lowestY - (GEN_ROW_HEIGHT * 2)
+        y3 := clickY - (GEN_ROW_HEIGHT * 2)
         if (y3 >= yTop) {
             loop {
                 if !ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+y3), COLOR_GREEN, TOLERANCE)
@@ -176,9 +232,10 @@ ScrollAndBuy(maxBottomClicks := 0, scrollFull := false) {
         }
         if (lowestGreenY != -1) {
             Sleep 100
-            BuyAtCurrentScrollRange(GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, maxBottomClicks, 5)
+            BuyAtCurrentScrollRange(GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, maxBottomClicks)
             return
         }
+        Send "{WheelUp}"
         Send "{WheelUp}"
         Sleep 150
     }
@@ -221,8 +278,21 @@ DoAscend() {
 }
 
 ; =============================================
+EquipPotato(rx, ry, eqX, eqY) {
+    ActivateTarget()
+    Send "8"
+    Sleep 600
+    WiggleClick(rx, ry)
+    Sleep 200
+    WiggleClick(eqX, eqY)
+    Sleep 300
+}
+
+; =============================================
 DoPrestige(loopStart) {
     global WIN_X, WIN_Y, PRESTIGE_NOW_X, PRESTIGE_NOW_Y, PRESTIGE_CON_X, PRESTIGE_CON_Y
+    global INV_ENABLED, INV_PRES_X, INV_PRES_Y, INV_PRES_EQX, INV_PRES_EQY
+    global INV_BON_X, INV_BON_Y, INV_BON_EQX, INV_BON_EQY
 
     elapsed   := A_TickCount - loopStart
     remaining := 29000 - 2200 - elapsed
@@ -230,6 +300,8 @@ DoPrestige(loopStart) {
         Sleep remaining
 
     SellGolden()
+    if INV_ENABLED
+        EquipPotato(INV_PRES_X, INV_PRES_Y, INV_PRES_EQX, INV_PRES_EQY)
     ActivateTarget()
     Send "5"
     Sleep 700
@@ -258,12 +330,47 @@ DoPrestige(loopStart) {
     Sleep 50
     SendInput "{LButton Up}"
     Sleep 500
+    if INV_ENABLED
+        EquipPotato(INV_BON_X, INV_BON_Y, INV_BON_EQX, INV_BON_EQY)
+}
+
+; =============================================
+IsRockNear(rx, ry) {
+    global WIN_X, WIN_Y, SHOP_ROCK_DX, SHOP_ROCK_DY, SHOP_ROCK_W, SHOP_ROCK_H
+    x1 := WIN_X + rx + SHOP_ROCK_DX
+    y1 := WIN_Y + ry + SHOP_ROCK_DY
+    x2 := x1 + SHOP_ROCK_W
+    y2 := y1 + SHOP_ROCK_H
+    isRock        := false
+    isUselessRock := false
+    try isRock        := ImageSearch(&fx, &fy, x1, y1, x2, y2, "*30 *w" SHOP_ROCK_W " *h" SHOP_ROCK_H " " A_ScriptDir "\rock.png")
+    try isUselessRock := ImageSearch(&fx, &fy, x1, y1, x2, y2, "*30 *w" SHOP_ROCK_W " *h" SHOP_ROCK_H " " A_ScriptDir "\useless_rock.png")
+    return (isRock || isUselessRock)
+}
+
+DoShop() {
+    global WIN_X, WIN_Y, SHOP_BTNS, SHOP_SKIP_ROCKS
+    ActivateTarget()
+    Send "0"
+    Sleep 1500
+    for btn in SHOP_BTNS {
+        if (btn["x"] = 0)
+            continue
+        if SHOP_SKIP_ROCKS && IsRockNear(btn["x"], btn["y"])
+            continue
+        DirectClick(btn["x"], btn["y"])
+        Sleep 150
+    }
 }
 
 ; =============================================
 RunLoop() {
-    global running, TARGET_HWND, ASCEND_ENABLED
+    global running, TARGET_HWND, ASCEND_ENABLED, SHOP_ENABLED, lastShopTime
     while running {
+        if (SHOP_ENABLED && A_TickCount - lastShopTime >= 300000) {
+            DoShop()
+            lastShopTime := A_TickCount
+        }
         loopStart := A_TickCount
         SellGolden()
         ScrollAndBuy(2)

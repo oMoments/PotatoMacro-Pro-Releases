@@ -1,4 +1,4 @@
-﻿===========================================
+===========================================
   POTATO MACRO PRO - INSTRUCTIONS
 ===========================================
 
@@ -48,15 +48,16 @@ Inventory Swap (optional)
   Leave all four as 0 to disable this feature.
 
 Shop (optional)
-  Set up your shop coordinates here. To actually enable auto-buying,
-  you also need to check "Auto Shop (every 5 min)" on the Main tab.
-  Left Col Buy Btn  - the buy button X for the left column of items.
-  Right Col Buy Btn - the buy button X for the right column of items.
-  Y Top             - Y of the first row buy button.
-  Y Bot             - Y of the last visible row buy button.
-  Row Height        - pixel distance between two shop item rows. Use the + picker to measure.
-  Skip Rock / Useless Rock - when checked, the macro will detect and skip rock items using image recognition.
-  Leave Left Col Buy Btn as 0 to disable the shop feature entirely.
+  The macro uses 8 explicit BUY button coordinates — one per shop slot.
+  IMPORTANT: Your shop must be arranged in 2 columns of 4 rows each.
+    Left column, top to bottom  = Btn 1, 2, 3, 4
+    Right column, top to bottom = Btn 5, 6, 7, 8
+  Set each Btn coordinate to the exact BUY button for that slot.
+  Leave a slot as 0 to skip it. Leave all as 0 to disable the shop entirely.
+  To actually enable auto-buying, check "Auto Shop (every 5 min)" on the Main tab.
+
+  Skip Rock / Useless Rock - when enabled on the Main tab, the macro will
+                   detect and skip rock items using image recognition.
 
 Rock Images (for Skip Rocks feature)
   The macro uses two image files to detect rocks:
@@ -65,8 +66,14 @@ Rock Images (for Skip Rocks feature)
   These must be in the same folder as the launcher.
   You can use your own cropped screenshots of the rock icons.
   Just name them correctly and drop them in the folder.
-  If you recapture them at a different resolution, click
-  "Reset Icon Scale (after recapture)" then Save Settings.
+
+  Rock Box - defines where the rock icon appears relative to each BUY button.
+  Use the "Set" button in Settings to set it automatically:
+    1. Click any BUY button in the shop (anchor).
+    2. Click the top-left corner of the rock icon image.
+    3. Click the bottom-right corner of the rock icon image.
+  Off X / Off Y is the offset from the buy button to the rock icon.
+  W / H is the size of the search area.
 
 Keybinds
   You can change the Start, Stop All, and Bring to Front hotkeys to whatever you want.
@@ -80,6 +87,8 @@ MAIN TAB
   Stop All     - stops all running macros.
   Ascend            - enable this if you want the macro to ascend after each prestige.
                       Choose your ascend path (Blessing of Abundance or Blessing of Prestige).
+  Inventory Swap    - enable this to swap to your prestige potato before prestiging,
+                      then swap back to your bonus potato afterwards.
   Auto Shop         - enable this to have the macro open the shop every 5 minutes and buy
                       everything available. Requires shop coordinates to be set in Settings.
 
@@ -119,5 +128,7 @@ TIPS
     your game is visible and not covered by other windows while running.
   - If the macro stops buying generators, double-check your Y Bot coordinate
     is set to a buy button that is half visible at the bottom of the list.
+  - For the shop, make sure your items are arranged in 2 columns before
+    setting coordinates. The macro clicks each button directly — no scrolling.
 
 ===========================================
