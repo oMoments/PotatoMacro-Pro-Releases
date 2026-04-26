@@ -7,7 +7,6 @@ if A_IsCompiled {
     FileInstall "PotatoMacro_Pro.ahk", deployDir "\PotatoMacro_Pro.ahk", 1
     FileInstall "OCR.ahk",             deployDir "\OCR.ahk",             1
     FileInstall "instructions.txt",    A_ScriptDir "\instructions.txt",  1
-    FileInstall "version.txt",         A_ScriptDir "\version.txt",       0
     MACRO_SCRIPT := deployDir "\PotatoMacro_Pro.ahk"
 } else {
     MACRO_SCRIPT := A_ScriptDir "\PotatoMacro_Pro.ahk"
@@ -175,8 +174,10 @@ CheckForUpdate() {
     }
     try {
         localVersion := ""
-        loop read A_ScriptDir "\version.txt"
-            localVersion := Trim(A_LoopReadLine)
+        if FileExist(A_ScriptDir "\version.txt") {
+            loop read A_ScriptDir "\version.txt"
+                localVersion := Trim(A_LoopReadLine)
+        }
         http := ComObject("WinHttp.WinHttpRequest.5.1")
         http.Open("GET", BASE_URL "version.txt", false)
         http.Send()
