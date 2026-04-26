@@ -20,6 +20,7 @@ if A_IsCompiled {
 activeMacros := Map()
 fld          := Map()
 shopPid      := 0
+rerollPid    := 0
 
 BASE_URL  := "https://raw.githubusercontent.com/oMoments/PotatoMacro-Pro-Releases/master/"
 AUTH_URL  := "https://potato-auth.lukepj00.workers.dev"
@@ -375,7 +376,7 @@ WM_GETMINMAXINFO(wParam, lParam, msg, hwnd) {
 }
 mainGui.SetFont("s9", "Segoe UI")
 
-tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  "])
+tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  Genetics  "])
 
 ; =============================================
 ;   TAB 1 — MAIN

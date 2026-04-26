@@ -74,6 +74,20 @@ ASCEND_PRE_Y   := Integer(IniRead(cfg, "Ascend", "BtnPrestigeY",  343))
 ASCEND_CON_X   := Integer(IniRead(cfg, "Ascend", "ConfirmX",      883))
 ASCEND_CON_Y   := Integer(IniRead(cfg, "Ascend", "ConfirmY",      688))
 
+REROLL_BTN_X   := Integer(IniRead(cfg, "Reroll", "BtnX",           0))
+REROLL_BTN_Y   := Integer(IniRead(cfg, "Reroll", "BtnY",           0))
+REROLL_CON_X   := Integer(IniRead(cfg, "Reroll", "ConfirmX",       0))
+REROLL_CON_Y   := Integer(IniRead(cfg, "Reroll", "ConfirmY",       0))
+REROLL_SCAN_X  := Integer(IniRead(cfg, "Reroll", "ScanX",          0))
+REROLL_SCAN_Y  := Integer(IniRead(cfg, "Reroll", "ScanY",          0))
+REROLL_MYTHIC  := Integer(IniRead(cfg, "Reroll", "StopMythic",     0))
+REROLL_SECRET  := Integer(IniRead(cfg, "Reroll", "StopSecret",     0))
+REROLL_POTATO  := Integer(IniRead(cfg, "Reroll", "StopPotatoProd", 0))
+REROLL_GENBON  := Integer(IniRead(cfg, "Reroll", "StopGenBonus",   0))
+REROLL_PRESPNT := Integer(IniRead(cfg, "Reroll", "StopPresPoints", 0))
+REROLL_GOLDCON := Integer(IniRead(cfg, "Reroll", "StopGoldConv",   0))
+REROLL_COSMIC  := Integer(IniRead(cfg, "Reroll", "StopCosmicConv", 0))
+
 COLOR_GREEN    := 0x48BB78
 COLOR_PRESTIGE := 0xBD69FF
 TOLERANCE      := 20
@@ -384,6 +398,27 @@ DoShop() {
 }
 
 ; =============================================
+IsTargetGenetic() {
+    global WIN_X, WIN_Y, TARGET_HWND
+    global REROLL_SCAN_X, REROLL_SCAN_Y
+    global REROLL_MYTHIC, REROLL_SECRET, REROLL_POTATO, REROLL_GENBON, REROLL_PRESPNT, REROLL_GOLDCON, REROLL_COSMIC
+    ToolTip
+    Sleep 50
+    try {
+        result := OCR.FromRect(WIN_X + REROLL_SCAN_X, WIN_Y + REROLL_SCAN_Y, 300, 65, "en")
+        t := result.Text
+        if (REROLL_MYTHIC  && InStr(t, "Mythic"))                                            return true
+        if (REROLL_SECRET  && InStr(t, "Secret"))                                            return true
+        if (REROLL_POTATO  && InStr(t, "Potato Production"))                                 return true
+        if (REROLL_GENBON  && InStr(t, "Generator Bonus"))                                   return true
+        if (REROLL_PRESPNT && InStr(t, "Prestige Points"))                                   return true
+        if (REROLL_GOLDCON && (InStr(t, "Gold Conversion") || InStr(t, "Golden Conversion"))) return true
+        if (REROLL_COSMIC  && InStr(t, "Cosmic"))                                            return true
+    }
+    return false
+}
+
+; =============================================
 RunLoop() {
     global running, TARGET_HWND, ASCEND_ENABLED
     while running {
@@ -416,6 +451,21 @@ if (MODE = "shop") {
     loop {
         DoShop()
         Sleep 300000
+    }
+} else if (MODE = "reroll") {
+    ActivateTarget()
+    Send "7"
+    Sleep 1500
+    loop {
+        ActivateTarget()
+        WiggleClick(REROLL_BTN_X, REROLL_BTN_Y)
+        Sleep 300
+        WiggleClick(REROLL_CON_X, REROLL_CON_Y)
+        Sleep 5000
+        if IsTargetGenetic() {
+            ToolTip "Target genetic found!"
+            break
+        }
     }
 } else {
     SetTimer RunLoop, -1
