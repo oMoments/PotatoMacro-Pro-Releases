@@ -186,6 +186,7 @@ CheckForUpdate() {
         }
         http := ComObject("WinHttp.WinHttpRequest.5.1")
         http.Open("GET", BASE_URL "version.txt", false)
+        http.SetTimeouts(5000, 5000, 5000, 5000)
         http.Send()
         latestVersion := Trim(http.ResponseText)
         if (latestVersion != "" && latestVersion != localVersion)
@@ -413,10 +414,12 @@ fld["ShopAuto"].OnEvent("Click", UpdateShopControls)
 fld["SkipRocks"]    := mainGui.Add("Radio", "x770 y304 w200 Group", "Skip Rock / Useless Rock")
 fld["SkipRocksOff"] := mainGui.Add("Radio", "x770 y324 w120",        "Buy All")
 
-btnStartShop := mainGui.Add("Button", "x10  y358 w540 h24", "▶ Start Shop Loop")
-btnStopShop  := mainGui.Add("Button", "x550 y358 w540 h24", "■ Stop Shop")
-btnStart     := mainGui.Add("Button", "x10  y388 w540 h267", "Start  [F4]")
-btnStopAll   := mainGui.Add("Button", "x550 y388 w540 h267", "Stop All  [F5]")
+btnStartShop   := mainGui.Add("Button", "x10  y355 w540 h24",  "▶ Start Shop Loop")
+btnStopShop    := mainGui.Add("Button", "x550 y355 w540 h24",  "■ Stop Shop")
+btnStartReroll := mainGui.Add("Button", "x10  y383 w540 h24",  "▶ Start Reroll Loop")
+btnStopReroll  := mainGui.Add("Button", "x550 y383 w540 h24",  "■ Stop Reroll")
+btnStart       := mainGui.Add("Button", "x10  y411 w540 h244", "Start  [F4]")
+btnStopAll     := mainGui.Add("Button", "x550 y411 w540 h244", "Stop All  [F5]")
 btnStopAll.OnEvent("Click", StopAllWithTip)
 
 ; =============================================
@@ -480,6 +483,31 @@ CoordRow("• Prestige Potato",  374, "InvPresX",   "InvPresY",   "", "Click the
 CoordRow("• Equip (prestige)", 398, "InvPresEqX", "InvPresEqY", "", "Click the equip button for the prestige potato", 515)
 CoordRow("• Bonus Potato",     422, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",        515)
 CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",   515)
+
+mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
+
+; =============================================
+;   TAB 3 — GENETICS
+; =============================================
+tabs.UseTab(3)
+
+mainGui.Add("GroupBox", "x5 y36 w510 h78", " Reroll ")
+CoordRow("• Reroll Button",  55, "RerollBtnX", "RerollBtnY", "", "Click the Reroll All Slots button")
+CoordRow("• Confirm Button", 77, "RerollConX", "RerollConY", "", "Click the confirm button")
+
+mainGui.Add("GroupBox", "x5 y120 w510 h55", " OCR Result Area ")
+CoordRow("• Result Panel", 139, "RerollScanX", "RerollScanY", "top-left of Genetics Roll panel", "Click the top-left of the result in top-right")
+
+mainGui.Add("GroupBox", "x520 y36 w575 h55", " Stop on Rarity ")
+fld["StopMythic"] := mainGui.Add("CheckBox", "x535 y56 w140", "Mythic")
+fld["StopSecret"] := mainGui.Add("CheckBox", "x680 y56 w140", "Secret")
+
+mainGui.Add("GroupBox", "x520 y97 w575 h148", " Stop on Name ")
+fld["StopPotatoProd"] := mainGui.Add("CheckBox", "x535 y117 w270", "Potato Production")
+fld["StopGenBonus"]   := mainGui.Add("CheckBox", "x535 y139 w270", "Generator Bonus")
+fld["StopPresPoints"] := mainGui.Add("CheckBox", "x535 y161 w270", "Prestige Points")
+fld["StopGoldConv"]   := mainGui.Add("CheckBox", "x535 y183 w270", "Gold Conversion")
+fld["StopCosmicConv"] := mainGui.Add("CheckBox", "x535 y205 w270", "Cosmic Clicks Conversion")
 
 mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
 
@@ -600,6 +628,19 @@ LoadSettings() {
     fld["InvBonY"].Value     := IniRead(CFG, "Inventory", "BonPotatoY",   0)
     fld["InvBonEqX"].Value   := IniRead(CFG, "Inventory", "BonEquipX",    0)
     fld["InvBonEqY"].Value   := IniRead(CFG, "Inventory", "BonEquipY",    0)
+    fld["RerollBtnX"].Value     := IniRead(CFG, "Reroll", "BtnX",          0)
+    fld["RerollBtnY"].Value     := IniRead(CFG, "Reroll", "BtnY",          0)
+    fld["RerollConX"].Value     := IniRead(CFG, "Reroll", "ConfirmX",      0)
+    fld["RerollConY"].Value     := IniRead(CFG, "Reroll", "ConfirmY",      0)
+    fld["RerollScanX"].Value    := IniRead(CFG, "Reroll", "ScanX",         0)
+    fld["RerollScanY"].Value    := IniRead(CFG, "Reroll", "ScanY",         0)
+    fld["StopMythic"].Value     := IniRead(CFG, "Reroll", "StopMythic",    0)
+    fld["StopSecret"].Value     := IniRead(CFG, "Reroll", "StopSecret",    0)
+    fld["StopPotatoProd"].Value := IniRead(CFG, "Reroll", "StopPotatoProd", 0)
+    fld["StopGenBonus"].Value   := IniRead(CFG, "Reroll", "StopGenBonus",  0)
+    fld["StopPresPoints"].Value := IniRead(CFG, "Reroll", "StopPresPoints", 0)
+    fld["StopGoldConv"].Value   := IniRead(CFG, "Reroll", "StopGoldConv",  0)
+    fld["StopCosmicConv"].Value := IniRead(CFG, "Reroll", "StopCosmicConv", 0)
     fld["ShopAuto"].Value    := IniRead(CFG, "Shop",      "AutoEnabled",   0)
     skipRocksVal := Integer(IniRead(CFG, "Shop", "SkipRocks", 1))
     fld["SkipRocks"].Value    := (skipRocksVal = 1) ? 1 : 0
@@ -649,6 +690,19 @@ SaveSettings(*) {
     IniWrite fld["InvBonY"].Value,    CFG, "Inventory", "BonPotatoY"
     IniWrite fld["InvBonEqX"].Value,  CFG, "Inventory", "BonEquipX"
     IniWrite fld["InvBonEqY"].Value,  CFG, "Inventory", "BonEquipY"
+    IniWrite fld["RerollBtnX"].Value,     CFG, "Reroll", "BtnX"
+    IniWrite fld["RerollBtnY"].Value,     CFG, "Reroll", "BtnY"
+    IniWrite fld["RerollConX"].Value,     CFG, "Reroll", "ConfirmX"
+    IniWrite fld["RerollConY"].Value,     CFG, "Reroll", "ConfirmY"
+    IniWrite fld["RerollScanX"].Value,    CFG, "Reroll", "ScanX"
+    IniWrite fld["RerollScanY"].Value,    CFG, "Reroll", "ScanY"
+    IniWrite fld["StopMythic"].Value,     CFG, "Reroll", "StopMythic"
+    IniWrite fld["StopSecret"].Value,     CFG, "Reroll", "StopSecret"
+    IniWrite fld["StopPotatoProd"].Value, CFG, "Reroll", "StopPotatoProd"
+    IniWrite fld["StopGenBonus"].Value,   CFG, "Reroll", "StopGenBonus"
+    IniWrite fld["StopPresPoints"].Value, CFG, "Reroll", "StopPresPoints"
+    IniWrite fld["StopGoldConv"].Value,   CFG, "Reroll", "StopGoldConv"
+    IniWrite fld["StopCosmicConv"].Value, CFG, "Reroll", "StopCosmicConv"
     IniWrite fld["ShopAuto"].Value,   CFG, "Shop",      "AutoEnabled"
     IniWrite fld["SkipRocks"].Value ? 1 : 0, CFG, "Shop", "SkipRocks"
     loop 8 {
@@ -718,6 +772,39 @@ StopShopLoop(*) {
     btnStopShop.Enabled  := false
 }
 
+StartRerollLoop(*) {
+    global rerollPid, btnStartReroll, btnStopReroll
+    if (rerollPid > 0 && ProcessExist(rerollPid)) {
+        MsgBox "Reroll loop is already running."
+        return
+    }
+    row := listBox.GetNext(0, "Focused")
+    if !row
+        row := 1
+    hwnd := Integer(listBox.GetText(row, 2))
+    if !hwnd
+        return
+    ahkExe := GetAhkExe()
+    if !ahkExe {
+        MsgBox "AutoHotkey v2 not found.", "Error", 0x10
+        return
+    }
+    WinGetPos &wx, &wy, , , "ahk_id " hwnd
+    SaveSettings()
+    Run '"' ahkExe '" "' MACRO_SCRIPT '" ' hwnd ' ' wx ' ' wy ' "' deployDir '" reroll', , , &rerollPid
+    btnStartReroll.Enabled := false
+    btnStopReroll.Enabled  := true
+}
+
+StopRerollLoop(*) {
+    global rerollPid, btnStartReroll, btnStopReroll
+    if (rerollPid > 0)
+        try ProcessClose(rerollPid)
+    rerollPid := 0
+    btnStartReroll.Enabled := true
+    btnStopReroll.Enabled  := false
+}
+
 StopMacro(hwnd) {
     if activeMacros.Has(hwnd) {
         try ProcessClose(activeMacros[hwnd])
@@ -729,6 +816,7 @@ StopAll(*) {
     for hwnd, pid in activeMacros.Clone()
         StopMacro(hwnd)
     StopShopLoop()
+    StopRerollLoop()
     RefreshList()
 }
 
@@ -738,6 +826,8 @@ StopAll(*) {
 btnStart.OnEvent("Click", StartSelected)
 btnStartShop.OnEvent("Click", StartShopLoop)
 btnStopShop.OnEvent("Click", StopShopLoop)
+btnStartReroll.OnEvent("Click", StartRerollLoop)
+btnStopReroll.OnEvent("Click", StopRerollLoop)
 SetTimer () => RefreshList(), 2000
 
 BringToFront(*) {
@@ -772,7 +862,8 @@ ApplyHotkeys() {
     btnStopAll.Text := "Stop All  [" fld["KB_Stop"].Value "]"
 }
 
-btnStopShop.Enabled := false
+btnStopShop.Enabled   := false
+btnStopReroll.Enabled := false
 LoadSettings()
 ApplyHotkeys()
 RefreshList()
