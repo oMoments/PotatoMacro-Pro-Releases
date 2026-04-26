@@ -82,13 +82,15 @@ CheckLogin() {
 
 ShowLoginDialog() {
     loginGui := Gui("+AlwaysOnTop -Resize", "Potato Macro Pro — Login")
-    loginGui.SetFont("s10", "Segoe UI")
+    loginGui.BackColor := "1E1E2E"
+    loginGui.SetFont("s10 cCDD6F4", "Segoe UI")
     loginGui.Add("Text", "x15 y15 w200", "Username:")
-    userEdit := loginGui.Add("Edit", "x15 y33 w200 -Theme")
+    userEdit := loginGui.Add("Edit", "x15 y33 w200 -Theme Background2A2A3E")
     loginGui.Add("Text", "x15 y63 w200", "Password:")
-    passEdit := loginGui.Add("Edit", "x15 y81 w200 -Theme Password")
+    passEdit := loginGui.Add("Edit", "x15 y81 w200 -Theme Password Background2A2A3E")
     errText  := loginGui.Add("Text", "x15 y111 w200 cRed", "")
-    btnLogin := loginGui.Add("Button", "x15 y130 w200", "Login")
+    btnLogin := loginGui.Add("Button", "x15 y130 w200 Background3D6B9E", "Login")
+    btnLogin.SetFont("s10 cWhite Bold", "Segoe UI")
 
     btnLogin.OnEvent("Click", TryLogin)
     loginGui.OnEvent("Close", (*) => ExitApp())
@@ -295,46 +297,46 @@ CoordRow(label, y, keyX, keyY, desc := "", pickTip := "", xOff := 0) {
     global mainGui, fld
     mainGui.Add("Text", "x" (10+xOff) " y" (y+3) " w175", label)
     mainGui.Add("Text", "x" (185+xOff) " y" (y+3) " w18", "X:")
-    fld[keyX] := mainGui.Add("Edit", "x" (203+xOff) " y" y " w50 Number -Theme")
+    fld[keyX] := mainGui.Add("Edit", "x" (203+xOff) " y" y " w50 Number -Theme Background2A2A3E")
     mainGui.Add("Text", "x" (256+xOff) " y" (y+3) " w18", "Y:")
-    fld[keyY] := mainGui.Add("Edit", "x" (274+xOff) " y" y " w50 Number -Theme")
+    fld[keyY] := mainGui.Add("Edit", "x" (274+xOff) " y" y " w50 Number -Theme Background2A2A3E")
     mainGui.Add("Button", "x" (327+xOff) " y" (y-1) " w22 h21", "+")
         .OnEvent("Click", PickCoord.Bind(keyX, keyY, pickTip))
     if desc != ""
-        mainGui.Add("Text", "x" (354+xOff) " y" (y+3) " w156 cGray", desc)
+        mainGui.Add("Text", "x" (354+xOff) " y" (y+3) " w156 c888BA8", desc)
 }
 
 CoordRowX(label, y, key, desc := "", pickTip := "") {
     global mainGui, fld
     mainGui.Add("Text", "x10 y" (y+3) " w175", label)
     mainGui.Add("Text", "x185 y" (y+3) " w18", "X:")
-    fld[key] := mainGui.Add("Edit", "x203 y" y " w50 Number -Theme")
+    fld[key] := mainGui.Add("Edit", "x203 y" y " w50 Number -Theme Background2A2A3E")
     mainGui.Add("Button", "x256 y" (y-1) " w22 h21", "+")
         .OnEvent("Click", PickSingleX.Bind(key, pickTip))
     if desc != ""
-        mainGui.Add("Text", "x283 y" (y+3) " w227 cGray", desc)
+        mainGui.Add("Text", "x283 y" (y+3) " w227 c888BA8", desc)
 }
 
 CoordRowY(label, y, key, desc := "", pickTip := "") {
     global mainGui, fld
     mainGui.Add("Text", "x10 y" (y+3) " w175", label)
     mainGui.Add("Text", "x185 y" (y+3) " w18", "Y:")
-    fld[key] := mainGui.Add("Edit", "x203 y" y " w50 Number -Theme")
+    fld[key] := mainGui.Add("Edit", "x203 y" y " w50 Number -Theme Background2A2A3E")
     mainGui.Add("Button", "x256 y" (y-1) " w22 h21", "+")
         .OnEvent("Click", PickSingleY.Bind(key, pickTip))
     if desc != ""
-        mainGui.Add("Text", "x283 y" (y+3) " w227 cGray", desc)
+        mainGui.Add("Text", "x283 y" (y+3) " w227 c888BA8", desc)
 }
 
 SectionHeader(label, y) {
     global mainGui
-    mainGui.Add("Text", "x10 y" y " w500 cGray", label)
+    mainGui.Add("Text", "x10 y" y " w500 c888BA8", label)
 }
 
 KeybindRow(label, y, key, xOff := 0) {
     global mainGui, fld
     mainGui.Add("Text", "x" (10+xOff) " y" (y+3) " w150", label)
-    fld["KB_" key] := mainGui.Add("Text", "x" (175+xOff) " y" (y+3) " w100 cBlue", "")
+    fld["KB_" key] := mainGui.Add("Text", "x" (175+xOff) " y" (y+3) " w100 c89B4FA", "")
     mainGui.Add("Button", "x" (285+xOff) " y" (y-1) " w60 h21", "Set")
         .OnEvent("Click", RecordKey.Bind(key))
 }
@@ -343,9 +345,9 @@ CompactCoord(label, y, keyX, keyY, xOff, pickTip := "") {
     global mainGui, fld
     mainGui.Add("Text",   "x" xOff         " y" (y+3) " w42",                       label)
     mainGui.Add("Text",   "x" (xOff + 42)  " y" (y+3) " w12",                       "X:")
-    fld[keyX] := mainGui.Add("Edit", "x" (xOff + 56)  " y" y     " w42 Number -Theme")
+    fld[keyX] := mainGui.Add("Edit", "x" (xOff + 56)  " y" y     " w42 Number -Theme Background2A2A3E")
     mainGui.Add("Text",   "x" (xOff + 102) " y" (y+3) " w12",                       "Y:")
-    fld[keyY] := mainGui.Add("Edit", "x" (xOff + 116) " y" y     " w42 Number -Theme")
+    fld[keyY] := mainGui.Add("Edit", "x" (xOff + 116) " y" y     " w42 Number -Theme Background2A2A3E")
     mainGui.Add("Button", "x" (xOff + 162) " y" (y-1) " w22 h21", "+")
         .OnEvent("Click", PickCoord.Bind(keyX, keyY, pickTip))
 }
@@ -375,7 +377,8 @@ WM_GETMINMAXINFO(wParam, lParam, msg, hwnd) {
     NumPut("Int", 1100, lParam, 24)
     NumPut("Int", 685,  lParam, 28)
 }
-mainGui.SetFont("s9", "Segoe UI")
+mainGui.BackColor := "1E1E2E"
+mainGui.SetFont("s9 cCDD6F4", "Segoe UI")
 
 tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  Genetics  "])
 
@@ -385,12 +388,12 @@ tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  
 tabs.UseTab(1)
 
 mainGui.Add("Text", "x10 y33 w480", "Roblox Windows Detected:")
-listBox := mainGui.Add("ListView", "x10 y50 w1080 h140 -Multi", ["Window Title", "ID", "Status"])
+listBox := mainGui.Add("ListView", "x10 y50 w1080 h140 -Multi Background2A2A3E", ["Window Title", "ID", "Status"])
 listBox.ModifyCol(1, 820)
 listBox.ModifyCol(2, 120)
 listBox.ModifyCol(3, 100)
 
-mainGui.Add("Button", "x10 y200 w1080 h24", "Auto-Find").OnEvent("Click", AutoFind)
+mainGui.Add("Button", "x10 y200 w1080 h24 Background2E3A4E", "Auto-Find").OnEvent("Click", AutoFind)
 
 btnUpdate := mainGui.Add("Button", "x10 y230 w1080 h24 Hidden", "⬇ Update Available — Click to Update")
 btnUpdate.SetFont("s9 cWhite", "Segoe UI")
@@ -406,7 +409,7 @@ fld["AscPath2"] := mainGui.Add("Radio", "x40 y324 w200",       "Blessing of Pres
 
 mainGui.Add("GroupBox", "x375 y260 w350 h90", "")
 fld["InvEnabled"] := mainGui.Add("CheckBox", "x390 y282 w200", "Inventory Swap")
-mainGui.Add("Text", "x390 y304 w330 cGray", "Equips your prestige potato right before each prestige, then swaps back to your bonus potato afterwards.")
+mainGui.Add("Text", "x390 y304 w330 c888BA8", "Equips your prestige potato right before each prestige, then swaps back to your bonus potato afterwards.")
 
 mainGui.Add("GroupBox", "x740 y260 w350 h90", "")
 fld["ShopAuto"] := mainGui.Add("CheckBox", "x755 y282 w200", "Auto Shop  (every 5 min)")
@@ -414,10 +417,14 @@ fld["ShopAuto"].OnEvent("Click", UpdateShopControls)
 fld["SkipRocks"]    := mainGui.Add("Radio", "x770 y304 w200 Group", "Skip Rock / Useless Rock")
 fld["SkipRocksOff"] := mainGui.Add("Radio", "x770 y324 w120",        "Buy All")
 
-btnStartShop := mainGui.Add("Button", "x10  y358 w540 h24",  "▶ Start Shop Loop")
-btnStopShop  := mainGui.Add("Button", "x550 y358 w540 h24",  "■ Stop Shop")
-btnStart     := mainGui.Add("Button", "x10  y388 w540 h267", "Start  [F4]")
-btnStopAll   := mainGui.Add("Button", "x550 y388 w540 h267", "Stop All  [F5]")
+btnStartShop := mainGui.Add("Button", "x10  y358 w540 h24  Background2E5E8E", "▶ Start Shop Loop")
+btnStartShop.SetFont("s9 cWhite Bold", "Segoe UI")
+btnStopShop  := mainGui.Add("Button", "x550 y358 w540 h24  Background5E2E2E", "■ Stop Shop")
+btnStopShop.SetFont("s9 cWhite Bold", "Segoe UI")
+btnStart     := mainGui.Add("Button", "x10  y388 w540 h267 Background2D7D3A", "Start  [F4]")
+btnStart.SetFont("s12 cWhite Bold", "Segoe UI")
+btnStopAll   := mainGui.Add("Button", "x550 y388 w540 h267 Background7D2D2D", "Stop All  [F5]")
+btnStopAll.SetFont("s12 cWhite Bold", "Segoe UI")
 btnStopAll.OnEvent("Click", StopAllWithTip)
 
 ; =============================================
@@ -427,15 +434,15 @@ tabs.UseTab(2)
 
 mainGui.Add("Text", "x10 y36 w75", "Resolution:")
 mainGui.Add("Text", "x88 y36 w20", "W:")
-fld["ResW"] := mainGui.Add("Edit", "x108 y33 w55 Number -Theme")
+fld["ResW"] := mainGui.Add("Edit", "x108 y33 w55 Number -Theme Background2A2A3E")
 mainGui.Add("Text", "x167 y36 w15", "×")
 mainGui.Add("Text", "x185 y36 w20", "H:")
-fld["ResH"] := mainGui.Add("Edit", "x205 y33 w55 Number -Theme")
-mainGui.Add("Button", "x270 y33 w120", "Auto-detect").OnEvent("Click", AutoDetectRes)
+fld["ResH"] := mainGui.Add("Edit", "x205 y33 w55 Number -Theme Background2A2A3E")
+mainGui.Add("Button", "x270 y33 w120 Background2E3A4E", "Auto-detect").OnEvent("Click", AutoDetectRes)
 
-mainGui.Add("Text", "x10 y60 w22 cGray", "the")
+mainGui.Add("Text", "x10 y60 w22 c888BA8", "the")
 mainGui.Add("Text", "x30 y57 w22 h21 Border Center", "+")
-mainGui.Add("Text", "x57 y60 w900 cGray", "acts as a coordinate finder — click it, then click the spot in Roblox")
+mainGui.Add("Text", "x57 y60 w900 c888BA8", "acts as a coordinate finder — click it, then click the spot in Roblox")
 
 ; ============= LEFT COLUMN =============
 mainGui.Add("GroupBox", "x5 y85 w510 h78", " Sell ")
@@ -447,9 +454,9 @@ CoordRowX("• Buy Button (column X)", 189, "GenBtnX",  "any green buy button", 
 CoordRowY("• Y Top",                 211, "GenYTop",  "the highest buy button", "Click the highest visible buy button")
 CoordRowY("• Y Bot",                 233, "GenYBot",  "the lowest buy button",  "Click the lowest visible buy button")
 mainGui.Add("Text", "x10 y258 w175", "• Row Spacing:")
-fld["GenRowH"] := mainGui.Add("Edit", "x203 y255 w50 Number -Theme")
+fld["GenRowH"] := mainGui.Add("Edit", "x203 y255 w50 Number -Theme Background2A2A3E")
 mainGui.Add("Button", "x256 y254 w22 h21", "+").OnEvent("Click", MeasureRowH)
-mainGui.Add("Text", "x283 y258 w227 cGray", "any buy button, then the one below it")
+mainGui.Add("Text", "x283 y258 w227 c888BA8", "any buy button, then the one below it")
 CoordRow("• Scroll Area", 277, "ScrollX", "ScrollY", "anywhere in the generator list", "Click anywhere inside the generator scroll list")
 
 mainGui.Add("GroupBox", "x5 y317 w510 h78", " Prestige ")
@@ -468,7 +475,7 @@ KeybindRow("• Stop All",       126, "Stop",  515)
 KeybindRow("• Bring to Front", 148, "Front", 515)
 
 mainGui.Add("GroupBox", "x520 y195 w575 h145", " Shop ")
-mainGui.Add("Text", "x530 y214 w555 cGray", "Set the BUY button for each slot. Left col = Btn 1-4, right col = Btn 5-8.")
+mainGui.Add("Text", "x530 y214 w555 c888BA8", "Set the BUY button for each slot. Left col = Btn 1-4, right col = Btn 5-8.")
 
 loop 4 {
     rowY := 234 + (A_Index - 1) * 22
@@ -482,7 +489,7 @@ CoordRow("• Equip (prestige)", 398, "InvPresEqX", "InvPresEqY", "", "Click the
 CoordRow("• Bonus Potato",     422, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",        515)
 CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",   515)
 
-mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
+mainGui.Add("Button", "x10 y590 w1080 h28 Background3D5A80", "Save Settings").OnEvent("Click", SaveSettings)
 
 ; =============================================
 ;   TAB 3 — GENETICS
@@ -507,10 +514,12 @@ fld["StopPresPoints"] := mainGui.Add("CheckBox", "x535 y161 w270", "Prestige Poi
 fld["StopGoldConv"]   := mainGui.Add("CheckBox", "x535 y183 w270", "Gold Conversion")
 fld["StopCosmicConv"] := mainGui.Add("CheckBox", "x535 y205 w270", "Cosmic Clicks Conversion")
 
-btnStartReroll := mainGui.Add("Button", "x5  y255 w540 h24", "▶ Start Reroll Loop")
-btnStopReroll  := mainGui.Add("Button", "x550 y255 w540 h24", "■ Stop Reroll")
+btnStartReroll := mainGui.Add("Button", "x5  y255 w540 h24 Background2E5E8E", "▶ Start Reroll Loop")
+btnStartReroll.SetFont("s9 cWhite Bold", "Segoe UI")
+btnStopReroll  := mainGui.Add("Button", "x550 y255 w540 h24 Background5E2E2E", "■ Stop Reroll")
+btnStopReroll.SetFont("s9 cWhite Bold", "Segoe UI")
 
-mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
+mainGui.Add("Button", "x10 y590 w1080 h28 Background3D5A80", "Save Settings").OnEvent("Click", SaveSettings)
 
 ; =============================================
 ;   SHOP / ASCEND CONTROLS
