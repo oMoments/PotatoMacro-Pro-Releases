@@ -408,31 +408,48 @@ DoReroll() {
 
 ; =============================================
 IsTargetGenetic() {
-    global WIN_X, WIN_Y, TARGET_HWND
-    global REROLL_SCAN_X, REROLL_SCAN_Y
+    global WIN_X, WIN_Y, REROLL_SCAN_X, REROLL_SCAN_Y
     global REROLL_MYTHIC, REROLL_SECRET, REROLL_POTATO, REROLL_GENBON, REROLL_PRESPNT, REROLL_GOLDCON, REROLL_COSMIC
     ToolTip
     Sleep 50
     try {
-        result := OCR.FromRect(WIN_X + REROLL_SCAN_X, WIN_Y + REROLL_SCAN_Y, 300, 65, "en")
+        result := OCR.FromRect(WIN_X + REROLL_SCAN_X, WIN_Y + REROLL_SCAN_Y, 720, 45, "en")
         t := result.Text
 
-        anyRarityChecked := (REROLL_MYTHIC || REROLL_SECRET)
-        rarityMatch := (REROLL_MYTHIC && InStr(t, "Mythic")) || (REROLL_SECRET && InStr(t, "Secret"))
+        rarities := []
+        if REROLL_MYTHIC
+            rarities.Push("Mythic")
+        if REROLL_SECRET
+            rarities.Push("Secret")
 
-        anyNameChecked := (REROLL_POTATO || REROLL_GENBON || REROLL_PRESPNT || REROLL_GOLDCON || REROLL_COSMIC)
-        nameMatch := (REROLL_POTATO  && InStr(t, "Potato Production"))
-                  || (REROLL_GENBON  && InStr(t, "Generator Bonus"))
-                  || (REROLL_PRESPNT && InStr(t, "Prestige Points"))
-                  || (REROLL_GOLDCON && (InStr(t, "Gold Conversion") || InStr(t, "Golden Conversion")))
-                  || (REROLL_COSMIC  && InStr(t, "Cosmic"))
+        names := []
+        if REROLL_POTATO
+            names.Push("Potato Production")
+        if REROLL_GENBON
+            names.Push("Generator Bonus")
+        if REROLL_PRESPNT
+            names.Push("Prestige Points")
+        if REROLL_GOLDCON {
+            names.Push("Gold Conversion")
+            names.Push("Golden Conversion")
+        }
+        if REROLL_COSMIC
+            names.Push("Cosmic")
 
-        if anyRarityChecked && anyNameChecked
-            return (rarityMatch && nameMatch)
-        if anyRarityChecked
-            return rarityMatch
-        if anyNameChecked
-            return nameMatch
+        if (rarities.Length > 0 && names.Length > 0) {
+            for r in rarities
+                for n in names
+                    if InStr(t, r " " n)
+                        return true
+        } else if rarities.Length > 0 {
+            for r in rarities
+                if InStr(t, r)
+                    return true
+        } else if names.Length > 0 {
+            for n in names
+                if InStr(t, n)
+                    return true
+        }
     } catch {
         return false
     }
@@ -479,7 +496,9 @@ if (MODE = "shop") {
     Sleep 800
     loop {
         DoReroll()
-        Sleep 5000
+        ActivateTarget()
+        Send "7"
+        Sleep 1500
         if IsTargetGenetic() {
             ToolTip "Target genetic found!"
             break
