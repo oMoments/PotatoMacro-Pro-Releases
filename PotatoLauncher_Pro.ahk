@@ -16,7 +16,7 @@ activeMacros := Map()
 fld          := Map()
 
 BASE_URL  := "https://raw.githubusercontent.com/oMoments/PotatoMacro-Pro-Releases/master/"
-USERS_URL := "https://gist.githubusercontent.com/oMoments/3ba25917ed7c4e2a33d19074e28c0c19/raw/users.txt"
+AUTH_URL  := "https://potato-auth.lukepj00.workers.dev"
 AUTH_FILE := A_ScriptDir "\auth.dat"
 
 ; =============================================
@@ -94,16 +94,15 @@ ShowLoginDialog() {
 
 ValidateCredentials(entry) {
     try {
+        parts := StrSplit(entry, ":", , 2)
+        if (parts.Length < 2)
+            return false
+        body := '{"u":"' parts[1] '","p":"' parts[2] '"}'
         http := ComObject("WinHttp.WinHttpRequest.5.1")
-        http.Open("GET", USERS_URL, false)
-        http.Send()
-        loop parse, http.ResponseText, "`n", "`r" {
-            line := Trim(A_LoopField)
-            if (line = "" || SubStr(line, 1, 1) = "#")
-                continue
-            if (line = entry)
-                return true
-        }
+        http.Open("POST", AUTH_URL, false)
+        http.SetRequestHeader("Content-Type", "application/json")
+        http.Send(body)
+        return InStr(http.ResponseText, '"ok":true') > 0
     }
     return false
 }
@@ -437,8 +436,7 @@ KeybindRow("• Stop All",       126, "Stop",  515)
 KeybindRow("• Bring to Front", 148, "Front", 515)
 
 mainGui.Add("GroupBox", "x520 y195 w575 h145", " Shop ")
-mainGui.Add("Text", "x530 y214 w520 cGray", "Set the BUY button for each slot. Left col = Btn 1-4, right col = Btn 5-8.")
-mainGui.Add("Button", "x1060 y211 w22 h21", "?").OnEvent("Click", ShowShopExample)
+mainGui.Add("Text", "x530 y214 w555 cGray", "Set the BUY button for each slot. Left col = Btn 1-4, right col = Btn 5-8.")
 
 loop 4 {
     rowY := 234 + (A_Index - 1) * 22
@@ -448,55 +446,11 @@ loop 4 {
 
 mainGui.Add("GroupBox", "x520 y350 w575 h150", " Inventory Swap ")
 CoordRow("• Prestige Potato",  374, "InvPresX",   "InvPresY",   "", "Click the potato that buffs prestige points",    515)
-mainGui.Add("Button", "x868 y373 w22 h21", "?").OnEvent("Click", ShowPrestigePotato)
 CoordRow("• Equip (prestige)", 398, "InvPresEqX", "InvPresEqY", "", "Click the equip button for the prestige potato", 515)
-CoordRow("• Bonus Potato",     422, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",         515)
-mainGui.Add("Button", "x868 y421 w22 h21", "?").OnEvent("Click", ShowBonusPotato)
-CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",    515)
+CoordRow("• Bonus Potato",     422, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",        515)
+CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",   515)
 
 mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
-
-; =============================================
-;   EXAMPLE POPUPS
-; =============================================
-ShowShopExample(*) {
-    imgPath := A_ScriptDir "\shop_example.png"
-    if !FileExist(imgPath) {
-        MsgBox "shop_example.png not found.`nPlace it in the same folder as the launcher.", "Missing Image", 0x30
-        return
-    }
-    popGui := Gui("+AlwaysOnTop -Resize", "Shop Layout Example")
-    popGui.SetFont("s9", "Segoe UI")
-    popGui.Add("Picture", "x0 y0 w620 h355", imgPath)
-    popGui.Add("Text", "x0 y358 w620 Center cGray", "Left col top→bottom = Btn 1-4   |   Right col top→bottom = Btn 5-8")
-    popGui.Show("w620 h375")
-}
-
-ShowPrestigePotato(*) {
-    imgPath := A_ScriptDir "\inv_prestige_example.png"
-    if !FileExist(imgPath) {
-        MsgBox "inv_prestige_example.png not found.`nPlace it in the same folder as the launcher.", "Missing Image", 0x30
-        return
-    }
-    popGui := Gui("+AlwaysOnTop -Resize", "Prestige Potato Example")
-    popGui.SetFont("s9", "Segoe UI")
-    popGui.Add("Picture", "x0 y0 w260 h300", imgPath)
-    popGui.Add("Text", "x0 y303 w260 Center cGray", "Pick the potato + equip button that boosts prestige points")
-    popGui.Show("w260 h323")
-}
-
-ShowBonusPotato(*) {
-    imgPath := A_ScriptDir "\inv_bonus_example.png"
-    if !FileExist(imgPath) {
-        MsgBox "inv_bonus_example.png not found.`nPlace it in the same folder as the launcher.", "Missing Image", 0x30
-        return
-    }
-    popGui := Gui("+AlwaysOnTop -Resize", "Bonus Potato Example")
-    popGui.SetFont("s9", "Segoe UI")
-    popGui.Add("Picture", "x0 y0 w260 h300", imgPath)
-    popGui.Add("Text", "x0 y303 w260 Center cGray", "Pick the potato + equip button that boosts all potato gain")
-    popGui.Show("w260 h323")
-}
 
 ; =============================================
 ;   SHOP / ASCEND CONTROLS

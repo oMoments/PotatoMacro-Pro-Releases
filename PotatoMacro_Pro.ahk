@@ -361,13 +361,8 @@ IsRockByName(rx, ry) {
     h := Round(65 * scaleY)
     try {
         result := OCR.FromRect(x, y, w, h, "en")
-        text := result.Text
-        ToolTip "OCR: [" text "]"
-        SetTimer () => ToolTip(), -2000
-        return InStr(text, "Rock") > 0
-    } catch as e {
-        ToolTip "OCR ERR: " e.Message
-        SetTimer () => ToolTip(), -2000
+        return InStr(result.Text, "Rock") > 0
+    } catch {
         return false
     }
 }
