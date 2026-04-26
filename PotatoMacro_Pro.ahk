@@ -273,7 +273,7 @@ DoAscend() {
 
     MouseMove WIN_X+ASCEND_CON_X, WIN_Y+ASCEND_CON_Y, 3
     Sleep 200
-    MouseMove WIN_X+ASCEND_CON_X, WIN_Y+ASCEND_CON_Y-6, 2
+    MouseMove WIN_X+ASCEND_CON_X, WIN_Y+ASCEND_CON_Y-1, 2
     MouseMove WIN_X+ASCEND_CON_X, WIN_Y+ASCEND_CON_Y, 2
     Sleep 100
     SendInput "{LButton Down}"
