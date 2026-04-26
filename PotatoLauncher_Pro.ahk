@@ -2,8 +2,12 @@
 #SingleInstance Force
 
 if A_IsCompiled {
-    FileInstall "PotatoMacro_Pro.ahk", A_Temp "\PM_Pro_runtime.ahk", 1
-    MACRO_SCRIPT := A_Temp "\PM_Pro_runtime.ahk"
+    deployDir := A_AppData "\PotatoMacroPro"
+    DirCreate deployDir
+    FileInstall "PotatoMacro_Pro.ahk", deployDir "\PotatoMacro_Pro.ahk", 1
+    FileInstall "OCR.ahk",             deployDir "\OCR.ahk",             1
+    FileInstall "instructions.txt",    A_ScriptDir "\instructions.txt",  1
+    MACRO_SCRIPT := deployDir "\PotatoMacro_Pro.ahk"
 } else {
     MACRO_SCRIPT := A_ScriptDir "\PotatoMacro_Pro.ahk"
 }
@@ -254,35 +258,6 @@ MeasureRowHTo(targetKey, *) {
     tabs.Focus()
 }
 
-PickRockBox(*) {
-    global mainGui, fld
-    mainGui.Hide()
-    Sleep 200
-    KeyWait "LButton"
-    Sleep 100
-    ToolTip "Click any BUY button (anchor)..."
-    KeyWait "LButton", "D"
-    MouseGetPos &bx, &by
-    KeyWait "LButton"
-    Sleep 100
-    ToolTip "Click TOP-LEFT of the rock icon..."
-    KeyWait "LButton", "D"
-    MouseGetPos &tlx, &tly
-    KeyWait "LButton"
-    Sleep 100
-    ToolTip "Click BOTTOM-RIGHT of the rock icon..."
-    KeyWait "LButton", "D"
-    MouseGetPos &brx, &bry
-    KeyWait "LButton"
-    ToolTip
-    fld["RockOffX"].Value := tlx - bx
-    fld["RockOffY"].Value := tly - by
-    fld["RockW"].Value    := Abs(brx - tlx)
-    fld["RockH"].Value    := Abs(bry - tly)
-    mainGui.Show("w1100 h685")
-    tabs.Focus()
-}
-
 
 ; =============================================
 ;   GUI HELPERS
@@ -450,10 +425,10 @@ mainGui.Add("GroupBox", "x5 y317 w510 h78", " Prestige ")
 CoordRow("• Prestige Now",     336, "PresNowX", "PresNowY", "", "Click the Prestige Now button")
 CoordRow("• Prestige Confirm", 358, "PresConX", "PresConY", "", "Click the confirm button on the prestige popup")
 
-mainGui.Add("GroupBox", "x5 y402 w510 h100", " Ascend ")
-CoordRow("• Blessing of Abundance", 421, "AscAbuX", "AscAbuY", "", "Click the Blessing of Abundance path button")
-CoordRow("• Blessing of Prestige",  443, "AscPreX", "AscPreY", "", "Click the Blessing of Prestige path button")
-CoordRow("• Ascend Confirm",        465, "AscConX", "AscConY", "", "Click the confirm button on the ascend popup")
+mainGui.Add("GroupBox", "x5 y402 w510 h128", " Ascend ")
+CoordRow("• Blessing of Abundance", 428, "AscAbuX", "AscAbuY", "", "Click the Blessing of Abundance path button")
+CoordRow("• Blessing of Prestige",  450, "AscPreX", "AscPreY", "", "Click the Blessing of Prestige path button")
+CoordRow("• Ascend Confirm",        472, "AscConX", "AscConY", "", "Click the confirm button on the ascend popup")
 
 ; ============= RIGHT COLUMN =============
 mainGui.Add("GroupBox", "x520 y85 w575 h100", " Keybinds ")
@@ -461,9 +436,9 @@ KeybindRow("• Start",          104, "Start", 515)
 KeybindRow("• Stop All",       126, "Stop",  515)
 KeybindRow("• Bring to Front", 148, "Front", 515)
 
-mainGui.Add("GroupBox", "x520 y195 w575 h235", " Shop ")
-mainGui.Add("Button", "x1063 y192 w22 h16", "?").OnEvent("Click", ShowShopExample)
-mainGui.Add("Text", "x530 y214 w555 cGray", "Set the BUY button for each shop slot. Left col top→bottom = Btn 1-4, right col top→bottom = Btn 5-8.")
+mainGui.Add("GroupBox", "x520 y195 w575 h145", " Shop ")
+mainGui.Add("Text", "x530 y214 w520 cGray", "Set the BUY button for each slot. Left col = Btn 1-4, right col = Btn 5-8.")
+mainGui.Add("Button", "x1060 y211 w22 h21", "?").OnEvent("Click", ShowShopExample)
 
 loop 4 {
     rowY := 234 + (A_Index - 1) * 22
@@ -471,28 +446,15 @@ loop 4 {
     CompactCoord("Btn " (A_Index + 4), rowY, "Shop2Btn" (A_Index + 4) "X", "Shop2Btn" (A_Index + 4) "Y", 795, "Click Buy Button " (A_Index + 4) " in the shop")
 }
 
-mainGui.Add("Text",     "x530 y328 w575 +0x10")
-mainGui.Add("Text",     "x534 y335 w65", "Rock Box:")
-mainGui.Add("Text",     "x600 y335 w38", "Off X:")
-fld["RockOffX"] := mainGui.Add("Edit", "x640 y332 w50 -Theme")
-mainGui.Add("Text",     "x698 y335 w38", "Off Y:")
-fld["RockOffY"] := mainGui.Add("Edit", "x738 y332 w50 -Theme")
-mainGui.Add("Text",     "x796 y335 w20", "W:")
-fld["RockW"]    := mainGui.Add("Edit", "x818 y332 w50 Number -Theme")
-mainGui.Add("Text",     "x874 y335 w20", "H:")
-fld["RockH"]    := mainGui.Add("Edit", "x896 y332 w50 Number -Theme")
-mainGui.Add("Button",   "x952 y331 w55 h21", "Set").OnEvent("Click", PickRockBox)
-mainGui.Add("Text",     "x534 y357 w555 cGray", "Off X / Off Y = where the rock icon sits relative to its BUY button. Use Set to fill in.")
+mainGui.Add("GroupBox", "x520 y350 w575 h150", " Inventory Swap ")
+CoordRow("• Prestige Potato",  374, "InvPresX",   "InvPresY",   "", "Click the potato that buffs prestige points",    515)
+mainGui.Add("Button", "x868 y373 w22 h21", "?").OnEvent("Click", ShowPrestigePotato)
+CoordRow("• Equip (prestige)", 398, "InvPresEqX", "InvPresEqY", "", "Click the equip button for the prestige potato", 515)
+CoordRow("• Bonus Potato",     422, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",         515)
+mainGui.Add("Button", "x868 y421 w22 h21", "?").OnEvent("Click", ShowBonusPotato)
+CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",    515)
 
-mainGui.Add("GroupBox", "x520 y440 w575 h122", " Inventory Swap ")
-CoordRow("• Prestige Potato",  459, "InvPresX",   "InvPresY",   "", "Click the potato that buffs prestige points",    515)
-mainGui.Add("Button", "x868 y458 w22 h21", "?").OnEvent("Click", ShowPrestigePotato)
-CoordRow("• Equip (prestige)", 481, "InvPresEqX", "InvPresEqY", "", "Click the equip button for the prestige potato", 515)
-CoordRow("• Bonus Potato",     503, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",         515)
-mainGui.Add("Button", "x868 y502 w22 h21", "?").OnEvent("Click", ShowBonusPotato)
-CoordRow("• Equip (bonus)",    525, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",    515)
-
-mainGui.Add("Button", "x10 y645 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
+mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
 
 ; =============================================
 ;   EXAMPLE POPUPS
@@ -662,10 +624,6 @@ LoadSettings() {
         fld["Shop2Btn" A_Index "X"].Value := IniRead(CFG, "Shop", "L2Btn" A_Index "X", 0)
         fld["Shop2Btn" A_Index "Y"].Value := IniRead(CFG, "Shop", "L2Btn" A_Index "Y", 0)
     }
-    fld["RockOffX"].Value := IniRead(CFG, "Shop", "RockOffX", 0)
-    fld["RockOffY"].Value := IniRead(CFG, "Shop", "RockOffY", 0)
-    fld["RockW"].Value    := IniRead(CFG, "Shop", "RockW",    0)
-    fld["RockH"].Value    := IniRead(CFG, "Shop", "RockH",    0)
     fld["KB_Start"].Value := IniRead(CFG, "Hotkeys", "Start", "F4")
     fld["KB_Stop"].Value  := IniRead(CFG, "Hotkeys", "Stop",  "F5")
     fld["KB_Front"].Value := IniRead(CFG, "Hotkeys", "Front", ".")
@@ -712,10 +670,6 @@ SaveSettings(*) {
         IniWrite fld["Shop2Btn" A_Index "X"].Value, CFG, "Shop", "L2Btn" A_Index "X"
         IniWrite fld["Shop2Btn" A_Index "Y"].Value, CFG, "Shop", "L2Btn" A_Index "Y"
     }
-    IniWrite fld["RockOffX"].Value, CFG, "Shop", "RockOffX"
-    IniWrite fld["RockOffY"].Value, CFG, "Shop", "RockOffY"
-    IniWrite fld["RockW"].Value,    CFG, "Shop", "RockW"
-    IniWrite fld["RockH"].Value,    CFG, "Shop", "RockH"
     ToolTip "Settings saved!"
     SetTimer () => ToolTip(), -2000
 }
@@ -741,7 +695,7 @@ StartSelected(*) {
     }
     WinGetPos &wx, &wy, , , "ahk_id " hwnd
     SaveSettings()
-    Run '"' ahkExe '" "' MACRO_SCRIPT '" ' hwnd ' ' wx ' ' wy, , , &pid
+    Run '"' ahkExe '" "' MACRO_SCRIPT '" ' hwnd ' ' wx ' ' wy ' "' A_ScriptDir '"', , , &pid
     activeMacros[hwnd] := pid
     RefreshList()
 }

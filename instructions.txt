@@ -57,23 +57,8 @@ Shop (optional)
   To actually enable auto-buying, check "Auto Shop (every 5 min)" on the Main tab.
 
   Skip Rock / Useless Rock - when enabled on the Main tab, the macro will
-                   detect and skip rock items using image recognition.
-
-Rock Images (for Skip Rocks feature)
-  The macro uses two image files to detect rocks:
-    rock.png
-    useless_rock.png
-  These must be in the same folder as the launcher.
-  You can use your own cropped screenshots of the rock icons.
-  Just name them correctly and drop them in the folder.
-
-  Rock Box - defines where the rock icon appears relative to each BUY button.
-  Use the "Set" button in Settings to set it automatically:
-    1. Click any BUY button in the shop (anchor).
-    2. Click the top-left corner of the rock icon image.
-    3. Click the bottom-right corner of the rock icon image.
-  Off X / Off Y is the offset from the buy button to the rock icon.
-  W / H is the size of the search area.
+                   automatically detect and skip any item with "Rock" in its
+                   name using text recognition. No setup required.
 
 Keybinds
   You can change the Start, Stop All, and Bring to Front hotkeys to whatever you want.

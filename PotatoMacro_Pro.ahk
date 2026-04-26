@@ -1,5 +1,6 @@
 #Requires AutoHotkey v2.0
 #SingleInstance Off
+#Include OCR.ahk
 
 if A_Args.Length < 3 {
     MsgBox "Run this via PotatoLauncher_Pro.ahk"
@@ -9,8 +10,12 @@ if A_Args.Length < 3 {
 TARGET_HWND := Integer(A_Args[1])
 WIN_X       := Integer(A_Args[2])
 WIN_Y       := Integer(A_Args[3])
+ASSET_DIR   := A_Args.Length >= 4 ? A_Args[4] : A_ScriptDir
 
-cfg := A_ScriptDir "\PotatoConfig_Pro.ini"
+cfg := ASSET_DIR "\PotatoConfig_Pro.ini"
+
+WIN_W := Integer(IniRead(cfg, "Window", "ResW", 1920))
+WIN_H := Integer(IniRead(cfg, "Window", "ResH", 1080))
 
 GEN_BTN_X      := Integer(IniRead(cfg, "Generators", "BtnX",      1454))
 GEN_BTN_Y_TOP  := Integer(IniRead(cfg, "Generators", "YTop",       121))
@@ -177,7 +182,7 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
 
     clickCount := 0
     loop {
-        if !ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+lowestY), COLOR_GREEN, TOLERANCE)
+        if !ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE)
             break
         if (maxBottomClicks > 0 && clickCount >= maxBottomClicks)
             break
@@ -293,6 +298,7 @@ DoPrestige(loopStart) {
     global WIN_X, WIN_Y, PRESTIGE_NOW_X, PRESTIGE_NOW_Y, PRESTIGE_CON_X, PRESTIGE_CON_Y
     global INV_ENABLED, INV_PRES_X, INV_PRES_Y, INV_PRES_EQX, INV_PRES_EQY
     global INV_BON_X, INV_BON_Y, INV_BON_EQX, INV_BON_EQY
+    global SHOP_ENABLED, lastShopTime
 
     elapsed   := A_TickCount - loopStart
     remaining := 29000 - 2200 - elapsed
@@ -300,6 +306,11 @@ DoPrestige(loopStart) {
         Sleep remaining
 
     SellGolden()
+    ; Shop runs here — after the very last sell of the loop, before prestiging
+    if (SHOP_ENABLED && A_TickCount - lastShopTime >= 300000) {
+        DoShop()
+        lastShopTime := A_TickCount
+    }
     if INV_ENABLED
         EquipPotato(INV_PRES_X, INV_PRES_Y, INV_PRES_EQX, INV_PRES_EQY)
     ActivateTarget()
@@ -335,42 +346,51 @@ DoPrestige(loopStart) {
 }
 
 ; =============================================
-IsRockNear(rx, ry) {
-    global WIN_X, WIN_Y, SHOP_ROCK_DX, SHOP_ROCK_DY, SHOP_ROCK_W, SHOP_ROCK_H
-    x1 := WIN_X + rx + SHOP_ROCK_DX
-    y1 := WIN_Y + ry + SHOP_ROCK_DY
-    x2 := x1 + SHOP_ROCK_W
-    y2 := y1 + SHOP_ROCK_H
-    isRock        := false
-    isUselessRock := false
-    try isRock        := ImageSearch(&fx, &fy, x1, y1, x2, y2, "*30 *w" SHOP_ROCK_W " *h" SHOP_ROCK_H " " A_ScriptDir "\rock.png")
-    try isUselessRock := ImageSearch(&fx, &fy, x1, y1, x2, y2, "*30 *w" SHOP_ROCK_W " *h" SHOP_ROCK_H " " A_ScriptDir "\useless_rock.png")
-    return (isRock || isUselessRock)
+IsRockByName(rx, ry) {
+    ; Scan the item name at the top of the slot (centered on button X)
+    ; Use the live window size (not config) so it works even if the window is resized
+    global WIN_X, WIN_Y, TARGET_HWND
+    ToolTip  ; clear any previous tooltip so it can't overlap the scan area
+    Sleep 80
+    WinGetPos , , &ww, &wh, "ahk_id " TARGET_HWND
+    scaleX := ww / 1920
+    scaleY := wh / 1080
+    x := WIN_X + rx - Round(240 * scaleX)
+    y := WIN_Y + ry - Round(115 * scaleY)
+    w := Round(420 * scaleX)
+    h := Round(65 * scaleY)
+    try {
+        result := OCR.FromRect(x, y, w, h, "en")
+        text := result.Text
+        ToolTip "OCR: [" text "]"
+        SetTimer () => ToolTip(), -2000
+        return InStr(text, "Rock") > 0
+    } catch as e {
+        ToolTip "OCR ERR: " e.Message
+        SetTimer () => ToolTip(), -2000
+        return false
+    }
 }
 
 DoShop() {
     global WIN_X, WIN_Y, SHOP_BTNS, SHOP_SKIP_ROCKS
     ActivateTarget()
     Send "0"
-    Sleep 1500
+    Sleep 2000
     for btn in SHOP_BTNS {
         if (btn["x"] = 0)
             continue
-        if SHOP_SKIP_ROCKS && IsRockNear(btn["x"], btn["y"])
+        if SHOP_SKIP_ROCKS && IsRockByName(btn["x"], btn["y"])
             continue
-        DirectClick(btn["x"], btn["y"])
-        Sleep 150
+        WiggleClick(btn["x"], btn["y"])
+        Sleep 300
     }
 }
 
 ; =============================================
 RunLoop() {
-    global running, TARGET_HWND, ASCEND_ENABLED, SHOP_ENABLED, lastShopTime
+    global running, TARGET_HWND, ASCEND_ENABLED
     while running {
-        if (SHOP_ENABLED && A_TickCount - lastShopTime >= 300000) {
-            DoShop()
-            lastShopTime := A_TickCount
-        }
         loopStart := A_TickCount
         SellGolden()
         ScrollAndBuy(2)
