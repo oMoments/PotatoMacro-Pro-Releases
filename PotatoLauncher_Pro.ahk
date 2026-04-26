@@ -20,6 +20,20 @@ AUTH_URL  := "https://potato-auth.lukepj00.workers.dev"
 AUTH_KEY  := "p8xK2mQv7rNjLdW4cTbYsZeHgAoUiFn3"
 AUTH_FILE := A_ScriptDir "\auth.dat"
 
+FetchAuthUrl() {
+    global AUTH_URL, BASE_URL
+    try {
+        http := ComObject("WinHttp.WinHttpRequest.5.1")
+        http.Open("GET", BASE_URL "auth_url.txt", false)
+        http.SetTimeouts(5000, 5000, 5000, 5000)
+        http.Send()
+        url := Trim(http.ResponseText)
+        if (url != "" && InStr(url, "https://"))
+            AUTH_URL := url
+    }
+}
+FetchAuthUrl()
+
 ; =============================================
 ;   AHK INTERPRETER LOOKUP (for compiled mode)
 ; =============================================
@@ -52,7 +66,7 @@ CheckLogin() {
         saved := ""
         loop read AUTH_FILE
             saved := A_LoopReadLine
-        if ValidateCredentials(saved)
+        if ValidateCredentials(saved) = "ok"
             return
         FileDelete AUTH_FILE
     }
@@ -80,10 +94,13 @@ ShowLoginDialog() {
             return
         }
         errText.Value := "Checking..."
-        if ValidateCredentials(u ":" p) {
+        result := ValidateCredentials(u ":" p)
+        if result = "ok" {
             try FileDelete AUTH_FILE
             FileAppend u ":" p, AUTH_FILE
             loginGui.Destroy()
+        } else if result = "error" {
+            errText.Value := "Connection failed. Check your internet."
         } else {
             errText.Value := "Invalid username or password."
         }
@@ -97,16 +114,17 @@ ValidateCredentials(entry) {
     try {
         parts := StrSplit(entry, ":", , 2)
         if (parts.Length < 2)
-            return false
+            return "invalid"
         body := '{"u":"' parts[1] '","p":"' parts[2] '"}'
         http := ComObject("WinHttp.WinHttpRequest.5.1")
         http.Open("POST", AUTH_URL, false)
+        http.SetTimeouts(8000, 8000, 8000, 8000)
         http.SetRequestHeader("Content-Type", "application/json")
         http.SetRequestHeader("X-App-Key", AUTH_KEY)
         http.Send(body)
-        return InStr(http.ResponseText, '"ok":true') > 0
+        return InStr(http.ResponseText, '"ok":true') > 0 ? "ok" : "invalid"
     }
-    return false
+    return "error"
 }
 
 CheckLogin()
