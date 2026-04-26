@@ -413,7 +413,7 @@ IsTargetGenetic() {
     ToolTip
     Sleep 50
     try {
-        result := OCR.FromRect(WIN_X + REROLL_SCAN_X, WIN_Y + REROLL_SCAN_Y, 720, 45, "en")
+        result := OCR.FromRect(WIN_X + REROLL_SCAN_X, WIN_Y + REROLL_SCAN_Y, 300, 65, "en")
         t := result.Text
 
         rarities := []
@@ -496,9 +496,7 @@ if (MODE = "shop") {
     Sleep 800
     loop {
         DoReroll()
-        ActivateTarget()
-        Send "7"
-        Sleep 1500
+        Sleep 5000
         if IsTargetGenetic() {
             ToolTip "Target genetic found!"
             break
