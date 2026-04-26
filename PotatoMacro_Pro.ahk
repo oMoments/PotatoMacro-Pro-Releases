@@ -398,6 +398,15 @@ DoShop() {
 }
 
 ; =============================================
+DoReroll() {
+    global WIN_X, WIN_Y, REROLL_BTN_X, REROLL_BTN_Y, REROLL_CON_X, REROLL_CON_Y
+    ActivateTarget()
+    WiggleClick(REROLL_BTN_X, REROLL_BTN_Y)
+    Sleep 300
+    WiggleClick(REROLL_CON_X, REROLL_CON_Y)
+}
+
+; =============================================
 IsTargetGenetic() {
     global WIN_X, WIN_Y, TARGET_HWND
     global REROLL_SCAN_X, REROLL_SCAN_Y
@@ -407,13 +416,25 @@ IsTargetGenetic() {
     try {
         result := OCR.FromRect(WIN_X + REROLL_SCAN_X, WIN_Y + REROLL_SCAN_Y, 300, 65, "en")
         t := result.Text
-        if (REROLL_MYTHIC  && InStr(t, "Mythic"))                                            return true
-        if (REROLL_SECRET  && InStr(t, "Secret"))                                            return true
-        if (REROLL_POTATO  && InStr(t, "Potato Production"))                                 return true
-        if (REROLL_GENBON  && InStr(t, "Generator Bonus"))                                   return true
-        if (REROLL_PRESPNT && InStr(t, "Prestige Points"))                                   return true
-        if (REROLL_GOLDCON && (InStr(t, "Gold Conversion") || InStr(t, "Golden Conversion"))) return true
-        if (REROLL_COSMIC  && InStr(t, "Cosmic"))                                            return true
+
+        anyRarityChecked := (REROLL_MYTHIC || REROLL_SECRET)
+        rarityMatch := (REROLL_MYTHIC && InStr(t, "Mythic")) || (REROLL_SECRET && InStr(t, "Secret"))
+
+        anyNameChecked := (REROLL_POTATO || REROLL_GENBON || REROLL_PRESPNT || REROLL_GOLDCON || REROLL_COSMIC)
+        nameMatch := (REROLL_POTATO  && InStr(t, "Potato Production"))
+                  || (REROLL_GENBON  && InStr(t, "Generator Bonus"))
+                  || (REROLL_PRESPNT && InStr(t, "Prestige Points"))
+                  || (REROLL_GOLDCON && (InStr(t, "Gold Conversion") || InStr(t, "Golden Conversion")))
+                  || (REROLL_COSMIC  && InStr(t, "Cosmic"))
+
+        if anyRarityChecked && anyNameChecked
+            return (rarityMatch && nameMatch)
+        if anyRarityChecked
+            return rarityMatch
+        if anyNameChecked
+            return nameMatch
+    } catch {
+        return false
     }
     return false
 }
@@ -455,12 +476,9 @@ if (MODE = "shop") {
 } else if (MODE = "reroll") {
     ActivateTarget()
     Send "7"
-    Sleep 1500
+    Sleep 800
     loop {
-        ActivateTarget()
-        WiggleClick(REROLL_BTN_X, REROLL_BTN_Y)
-        Sleep 300
-        WiggleClick(REROLL_CON_X, REROLL_CON_Y)
+        DoReroll()
         Sleep 5000
         if IsTargetGenetic() {
             ToolTip "Target genetic found!"
