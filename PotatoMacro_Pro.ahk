@@ -43,9 +43,6 @@ INV_BON_X    := Integer(IniRead(cfg, "Inventory", "BonPotatoX",  0))
 INV_BON_Y    := Integer(IniRead(cfg, "Inventory", "BonPotatoY",  0))
 INV_BON_EQX  := Integer(IniRead(cfg, "Inventory", "BonEquipX",   0))
 INV_BON_EQY  := Integer(IniRead(cfg, "Inventory", "BonEquipY",   0))
-HOME_CLICK_X := Integer(IniRead(cfg, "HomeClick", "X", 0))
-HOME_CLICK_Y := Integer(IniRead(cfg, "HomeClick", "Y", 0))
-
 INV_SWAP_ON  := Integer(IniRead(cfg, "Inventory", "Enabled", 0))
 INV_ENABLED  := (INV_SWAP_ON && INV_PRES_X > 0 && INV_BON_X > 0)
 
@@ -416,20 +413,9 @@ RunLoop() {
 }
 
 if (MODE = "shop") {
-    shopLastRun := 0
     loop {
-        if (A_TickCount - shopLastRun >= 300000) {
-            DoShop()
-            shopLastRun := A_TickCount
-            if (HOME_CLICK_X > 0 && HOME_CLICK_Y > 0) {
-                ActivateTarget()
-                Send "h"
-                Sleep 600
-            }
-        }
-        if (HOME_CLICK_X > 0 && HOME_CLICK_Y > 0)
-            DirectClick(HOME_CLICK_X, HOME_CLICK_Y)
-        Sleep 50
+        DoShop()
+        Sleep 300000
     }
 } else {
     SetTimer RunLoop, -1

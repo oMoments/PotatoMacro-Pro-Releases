@@ -7,6 +7,7 @@ if A_IsCompiled {
     FileInstall "PotatoMacro_Pro.ahk", deployDir "\PotatoMacro_Pro.ahk", 1
     FileInstall "OCR.ahk",             deployDir "\OCR.ahk",             1
     FileInstall "instructions.txt",    A_ScriptDir "\instructions.txt",  1
+    FileInstall "version.txt",         A_ScriptDir "\version.txt",       0
     MACRO_SCRIPT := deployDir "\PotatoMacro_Pro.ahk"
 } else {
     MACRO_SCRIPT := A_ScriptDir "\PotatoMacro_Pro.ahk"
@@ -473,9 +474,6 @@ CoordRow("• Equip (prestige)", 398, "InvPresEqX", "InvPresEqY", "", "Click the
 CoordRow("• Bonus Potato",     422, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",        515)
 CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",   515)
 
-mainGui.Add("GroupBox", "x5 y535 w1090 h48", " Home Click ")
-CoordRow("• Potato (home screen)", 554, "HomeClickX", "HomeClickY", "click after shop exits", "Click the potato on the home screen")
-
 mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
 
 ; =============================================
@@ -595,8 +593,6 @@ LoadSettings() {
     fld["InvBonY"].Value     := IniRead(CFG, "Inventory", "BonPotatoY",   0)
     fld["InvBonEqX"].Value   := IniRead(CFG, "Inventory", "BonEquipX",    0)
     fld["InvBonEqY"].Value   := IniRead(CFG, "Inventory", "BonEquipY",    0)
-    fld["HomeClickX"].Value  := IniRead(CFG, "HomeClick",  "X",             0)
-    fld["HomeClickY"].Value  := IniRead(CFG, "HomeClick",  "Y",             0)
     fld["ShopAuto"].Value    := IniRead(CFG, "Shop",      "AutoEnabled",   0)
     skipRocksVal := Integer(IniRead(CFG, "Shop", "SkipRocks", 1))
     fld["SkipRocks"].Value    := (skipRocksVal = 1) ? 1 : 0
@@ -646,8 +642,6 @@ SaveSettings(*) {
     IniWrite fld["InvBonY"].Value,    CFG, "Inventory", "BonPotatoY"
     IniWrite fld["InvBonEqX"].Value,  CFG, "Inventory", "BonEquipX"
     IniWrite fld["InvBonEqY"].Value,  CFG, "Inventory", "BonEquipY"
-    IniWrite fld["HomeClickX"].Value, CFG, "HomeClick",  "X"
-    IniWrite fld["HomeClickY"].Value, CFG, "HomeClick",  "Y"
     IniWrite fld["ShopAuto"].Value,   CFG, "Shop",      "AutoEnabled"
     IniWrite fld["SkipRocks"].Value ? 1 : 0, CFG, "Shop", "SkipRocks"
     loop 8 {
