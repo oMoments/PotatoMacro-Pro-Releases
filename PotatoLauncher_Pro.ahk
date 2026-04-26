@@ -14,6 +14,7 @@ if A_IsCompiled {
 CFG := A_ScriptDir "\PotatoConfig_Pro.ini"
 activeMacros := Map()
 fld          := Map()
+shopPid      := 0
 
 BASE_URL  := "https://raw.githubusercontent.com/oMoments/PotatoMacro-Pro-Releases/master/"
 AUTH_URL  := "https://potato-auth.lukepj00.workers.dev"
@@ -404,8 +405,10 @@ fld["ShopAuto"].OnEvent("Click", UpdateShopControls)
 fld["SkipRocks"]    := mainGui.Add("Radio", "x770 y304 w200 Group", "Skip Rock / Useless Rock")
 fld["SkipRocksOff"] := mainGui.Add("Radio", "x770 y324 w120",        "Buy All")
 
-btnStart   := mainGui.Add("Button", "x10  y360 w540 h295", "Start  [F4]")
-btnStopAll := mainGui.Add("Button", "x550 y360 w540 h295", "Stop All  [F5]")
+btnStartShop := mainGui.Add("Button", "x10  y358 w535 h24", "▶ Start Shop Loop")
+btnStopShop  := mainGui.Add("Button", "x550 y358 w540 h24", "■ Stop Shop")
+btnStart     := mainGui.Add("Button", "x10  y388 w540 h267", "Start  [F4]")
+btnStopAll   := mainGui.Add("Button", "x550 y388 w540 h267", "Stop All  [F5]")
 btnStopAll.OnEvent("Click", StopAllWithTip)
 
 ; =============================================
@@ -469,6 +472,9 @@ CoordRow("• Prestige Potato",  374, "InvPresX",   "InvPresY",   "", "Click the
 CoordRow("• Equip (prestige)", 398, "InvPresEqX", "InvPresEqY", "", "Click the equip button for the prestige potato", 515)
 CoordRow("• Bonus Potato",     422, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",        515)
 CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",   515)
+
+mainGui.Add("GroupBox", "x5 y535 w1090 h48", " Home Click ")
+CoordRow("• Potato (home screen)", 554, "HomeClickX", "HomeClickY", "click after shop exits", "Click the potato on the home screen")
 
 mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
 
@@ -589,6 +595,8 @@ LoadSettings() {
     fld["InvBonY"].Value     := IniRead(CFG, "Inventory", "BonPotatoY",   0)
     fld["InvBonEqX"].Value   := IniRead(CFG, "Inventory", "BonEquipX",    0)
     fld["InvBonEqY"].Value   := IniRead(CFG, "Inventory", "BonEquipY",    0)
+    fld["HomeClickX"].Value  := IniRead(CFG, "HomeClick",  "X",             0)
+    fld["HomeClickY"].Value  := IniRead(CFG, "HomeClick",  "Y",             0)
     fld["ShopAuto"].Value    := IniRead(CFG, "Shop",      "AutoEnabled",   0)
     skipRocksVal := Integer(IniRead(CFG, "Shop", "SkipRocks", 1))
     fld["SkipRocks"].Value    := (skipRocksVal = 1) ? 1 : 0
@@ -638,6 +646,8 @@ SaveSettings(*) {
     IniWrite fld["InvBonY"].Value,    CFG, "Inventory", "BonPotatoY"
     IniWrite fld["InvBonEqX"].Value,  CFG, "Inventory", "BonEquipX"
     IniWrite fld["InvBonEqY"].Value,  CFG, "Inventory", "BonEquipY"
+    IniWrite fld["HomeClickX"].Value, CFG, "HomeClick",  "X"
+    IniWrite fld["HomeClickY"].Value, CFG, "HomeClick",  "Y"
     IniWrite fld["ShopAuto"].Value,   CFG, "Shop",      "AutoEnabled"
     IniWrite fld["SkipRocks"].Value ? 1 : 0, CFG, "Shop", "SkipRocks"
     loop 8 {
@@ -674,6 +684,39 @@ StartSelected(*) {
     RefreshList()
 }
 
+StartShopLoop(*) {
+    global shopPid, btnStartShop, btnStopShop
+    if (shopPid > 0 && ProcessExist(shopPid)) {
+        MsgBox "Shop loop is already running."
+        return
+    }
+    row := listBox.GetNext(0, "Focused")
+    if !row
+        row := 1
+    hwnd := Integer(listBox.GetText(row, 2))
+    if !hwnd
+        return
+    ahkExe := GetAhkExe()
+    if !ahkExe {
+        MsgBox "AutoHotkey v2 not found.", "Error", 0x10
+        return
+    }
+    WinGetPos &wx, &wy, , , "ahk_id " hwnd
+    SaveSettings()
+    Run '"' ahkExe '" "' MACRO_SCRIPT '" ' hwnd ' ' wx ' ' wy ' "' A_ScriptDir '" shop', , , &shopPid
+    btnStartShop.Enabled := false
+    btnStopShop.Enabled  := true
+}
+
+StopShopLoop(*) {
+    global shopPid, btnStartShop, btnStopShop
+    if (shopPid > 0)
+        try ProcessClose(shopPid)
+    shopPid := 0
+    btnStartShop.Enabled := true
+    btnStopShop.Enabled  := false
+}
+
 StopMacro(hwnd) {
     if activeMacros.Has(hwnd) {
         try ProcessClose(activeMacros[hwnd])
@@ -684,6 +727,7 @@ StopMacro(hwnd) {
 StopAll(*) {
     for hwnd, pid in activeMacros.Clone()
         StopMacro(hwnd)
+    StopShopLoop()
     RefreshList()
 }
 
@@ -691,6 +735,8 @@ StopAll(*) {
 ;   WIRE UP
 ; =============================================
 btnStart.OnEvent("Click", StartSelected)
+btnStartShop.OnEvent("Click", StartShopLoop)
+btnStopShop.OnEvent("Click", StopShopLoop)
 SetTimer () => RefreshList(), 2000
 
 BringToFront(*) {
@@ -725,6 +771,7 @@ ApplyHotkeys() {
     btnStopAll.Text := "Stop All  [" fld["KB_Stop"].Value "]"
 }
 
+btnStopShop.Enabled := false
 LoadSettings()
 ApplyHotkeys()
 RefreshList()
