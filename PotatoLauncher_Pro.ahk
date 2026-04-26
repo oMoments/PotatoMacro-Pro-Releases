@@ -17,6 +17,7 @@ fld          := Map()
 
 BASE_URL  := "https://raw.githubusercontent.com/oMoments/PotatoMacro-Pro-Releases/master/"
 AUTH_URL  := "https://potato-auth.lukepj00.workers.dev"
+AUTH_KEY  := "p8xK2mQv7rNjLdW4cTbYsZeHgAoUiFn3"
 AUTH_FILE := A_ScriptDir "\auth.dat"
 
 ; =============================================
@@ -101,6 +102,7 @@ ValidateCredentials(entry) {
         http := ComObject("WinHttp.WinHttpRequest.5.1")
         http.Open("POST", AUTH_URL, false)
         http.SetRequestHeader("Content-Type", "application/json")
+        http.SetRequestHeader("X-App-Key", AUTH_KEY)
         http.Send(body)
         return InStr(http.ResponseText, '"ok":true') > 0
     }
