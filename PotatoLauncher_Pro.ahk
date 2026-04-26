@@ -8,10 +8,15 @@ if A_IsCompiled {
     FileInstall "OCR.ahk",             deployDir "\OCR.ahk",             1
     FileInstall "instructions.txt",    A_ScriptDir "\instructions.txt",  1
     MACRO_SCRIPT := deployDir "\PotatoMacro_Pro.ahk"
+    CFG := deployDir "\PotatoConfig_Pro.ini"
+    ; migrate old config from exe folder if AppData one doesn't exist yet
+    if !FileExist(CFG) && FileExist(A_ScriptDir "\PotatoConfig_Pro.ini")
+        FileCopy A_ScriptDir "\PotatoConfig_Pro.ini", CFG
 } else {
+    deployDir    := A_ScriptDir
     MACRO_SCRIPT := A_ScriptDir "\PotatoMacro_Pro.ahk"
+    CFG          := A_ScriptDir "\PotatoConfig_Pro.ini"
 }
-CFG := A_ScriptDir "\PotatoConfig_Pro.ini"
 activeMacros := Map()
 fld          := Map()
 shopPid      := 0
@@ -407,7 +412,7 @@ fld["ShopAuto"].OnEvent("Click", UpdateShopControls)
 fld["SkipRocks"]    := mainGui.Add("Radio", "x770 y304 w200 Group", "Skip Rock / Useless Rock")
 fld["SkipRocksOff"] := mainGui.Add("Radio", "x770 y324 w120",        "Buy All")
 
-btnStartShop := mainGui.Add("Button", "x10  y358 w535 h24", "▶ Start Shop Loop")
+btnStartShop := mainGui.Add("Button", "x10  y358 w540 h24", "▶ Start Shop Loop")
 btnStopShop  := mainGui.Add("Button", "x550 y358 w540 h24", "■ Stop Shop")
 btnStart     := mainGui.Add("Button", "x10  y388 w540 h267", "Start  [F4]")
 btnStopAll   := mainGui.Add("Button", "x550 y388 w540 h267", "Stop All  [F5]")
@@ -674,7 +679,7 @@ StartSelected(*) {
     }
     WinGetPos &wx, &wy, , , "ahk_id " hwnd
     SaveSettings()
-    Run '"' ahkExe '" "' MACRO_SCRIPT '" ' hwnd ' ' wx ' ' wy ' "' A_ScriptDir '"', , , &pid
+    Run '"' ahkExe '" "' MACRO_SCRIPT '" ' hwnd ' ' wx ' ' wy ' "' deployDir '"', , , &pid
     activeMacros[hwnd] := pid
     RefreshList()
 }
@@ -698,7 +703,7 @@ StartShopLoop(*) {
     }
     WinGetPos &wx, &wy, , , "ahk_id " hwnd
     SaveSettings()
-    Run '"' ahkExe '" "' MACRO_SCRIPT '" ' hwnd ' ' wx ' ' wy ' "' A_ScriptDir '" shop', , , &shopPid
+    Run '"' ahkExe '" "' MACRO_SCRIPT '" ' hwnd ' ' wx ' ' wy ' "' deployDir '" shop', , , &shopPid
     btnStartShop.Enabled := false
     btnStopShop.Enabled  := true
 }
