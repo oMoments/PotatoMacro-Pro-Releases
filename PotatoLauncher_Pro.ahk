@@ -414,12 +414,10 @@ fld["ShopAuto"].OnEvent("Click", UpdateShopControls)
 fld["SkipRocks"]    := mainGui.Add("Radio", "x770 y304 w200 Group", "Skip Rock / Useless Rock")
 fld["SkipRocksOff"] := mainGui.Add("Radio", "x770 y324 w120",        "Buy All")
 
-btnStartShop   := mainGui.Add("Button", "x10  y355 w540 h24",  "▶ Start Shop Loop")
-btnStopShop    := mainGui.Add("Button", "x550 y355 w540 h24",  "■ Stop Shop")
-btnStartReroll := mainGui.Add("Button", "x10  y383 w540 h24",  "▶ Start Reroll Loop")
-btnStopReroll  := mainGui.Add("Button", "x550 y383 w540 h24",  "■ Stop Reroll")
-btnStart       := mainGui.Add("Button", "x10  y411 w540 h244", "Start  [F4]")
-btnStopAll     := mainGui.Add("Button", "x550 y411 w540 h244", "Stop All  [F5]")
+btnStartShop := mainGui.Add("Button", "x10  y358 w540 h24",  "▶ Start Shop Loop")
+btnStopShop  := mainGui.Add("Button", "x550 y358 w540 h24",  "■ Stop Shop")
+btnStart     := mainGui.Add("Button", "x10  y388 w540 h267", "Start  [F4]")
+btnStopAll   := mainGui.Add("Button", "x550 y388 w540 h267", "Stop All  [F5]")
 btnStopAll.OnEvent("Click", StopAllWithTip)
 
 ; =============================================
@@ -495,8 +493,8 @@ mainGui.Add("GroupBox", "x5 y36 w510 h78", " Reroll ")
 CoordRow("• Reroll Button",  55, "RerollBtnX", "RerollBtnY", "", "Click the Reroll All Slots button")
 CoordRow("• Confirm Button", 77, "RerollConX", "RerollConY", "", "Click the confirm button")
 
-mainGui.Add("GroupBox", "x5 y120 w510 h55", " OCR Result Area ")
-CoordRow("• Result Panel", 139, "RerollScanX", "RerollScanY", "top-left of Genetics Roll panel", "Click the top-left of the result in top-right")
+mainGui.Add("GroupBox", "x5 y120 w510 h55", " Result Detection ")
+CoordRow("• Genetics Roll Box", 139, "RerollScanX", "RerollScanY", "top-left of result box", "Click the top-left corner of the Genetics Roll box (top-right of screen)")
 
 mainGui.Add("GroupBox", "x520 y36 w575 h55", " Stop on Rarity ")
 fld["StopMythic"] := mainGui.Add("CheckBox", "x535 y56 w140", "Mythic")
@@ -508,6 +506,9 @@ fld["StopGenBonus"]   := mainGui.Add("CheckBox", "x535 y139 w270", "Generator Bo
 fld["StopPresPoints"] := mainGui.Add("CheckBox", "x535 y161 w270", "Prestige Points")
 fld["StopGoldConv"]   := mainGui.Add("CheckBox", "x535 y183 w270", "Gold Conversion")
 fld["StopCosmicConv"] := mainGui.Add("CheckBox", "x535 y205 w270", "Cosmic Clicks Conversion")
+
+btnStartReroll := mainGui.Add("Button", "x5  y255 w540 h24", "▶ Start Reroll Loop")
+btnStopReroll  := mainGui.Add("Button", "x550 y255 w540 h24", "■ Stop Reroll")
 
 mainGui.Add("Button", "x10 y590 w1080 h28", "Save Settings").OnEvent("Click", SaveSettings)
 
@@ -827,7 +828,7 @@ btnStart.OnEvent("Click", StartSelected)
 btnStartShop.OnEvent("Click", StartShopLoop)
 btnStopShop.OnEvent("Click", StopShopLoop)
 btnStartReroll.OnEvent("Click", StartRerollLoop)
-btnStopReroll.OnEvent("Click", StopRerollLoop)
+btnStopReroll.OnEvent("Click",  StopRerollLoop)
 SetTimer () => RefreshList(), 2000
 
 BringToFront(*) {
