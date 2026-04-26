@@ -494,7 +494,7 @@ CoordRow("• Reroll Button",  55, "RerollBtnX", "RerollBtnY", "", "Click the Re
 CoordRow("• Confirm Button", 77, "RerollConX", "RerollConY", "", "Click the confirm button")
 
 mainGui.Add("GroupBox", "x5 y120 w510 h55", " Result Detection ")
-CoordRow("• Genetics Roll Box", 139, "RerollScanX", "RerollScanY", "top-left of result box", "Click the top-left corner of the Genetics Roll box (top-right of screen)")
+CoordRow("• Genetics Roll Box", 139, "RerollScanX", "RerollScanY", "top-left of result box", "Click the top-left of the result box in the top-right corner of the window")
 
 mainGui.Add("GroupBox", "x520 y36 w575 h55", " Stop on Rarity ")
 fld["StopMythic"] := mainGui.Add("CheckBox", "x535 y56 w140", "Mythic")

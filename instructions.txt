@@ -91,6 +91,39 @@ Each loop the macro does the following:
      (only if Shop coords are set and Auto Shop is checked on the Main tab).
 
 
+SHOP LOOP (Start Shop Loop button)
+-----------------------------------
+  Runs independently from the main macro.
+  Opens the shop every 5 minutes and buys available items automatically.
+  Respects the Skip Rock / Useless Rock setting on the Main tab.
+  Start it with the "Start Shop Loop" button and stop it with "Stop Shop".
+
+
+GENETICS REROLL (Genetics tab)
+--------------------------------
+  Automatically rerolls genetics until it finds what you are hunting for.
+
+  Setup (Genetics tab in Settings):
+    Reroll Button       - click the Reroll All Slots button in the genetics screen.
+    Confirm Button      - click the confirm button that appears after clicking Reroll.
+    Genetics Roll Box   - click the top-left of the result box in the top-right corner
+                          of the window (the box that shows the last roll result).
+
+  Stop Conditions:
+    Check the rarities and/or names you want to stop on.
+    The macro stops as soon as any checked condition is matched.
+    You can select multiple rarities and multiple names at the same time.
+
+  To use:
+    1. Open the Genetics tab in Settings and set your coordinates.
+    2. Check which rarity/name you are hunting for.
+    3. Click Save Settings.
+    4. Go to the Genetics tab in the launcher and click Start Reroll Loop.
+    5. The macro will press 7 to open genetics and start rolling.
+    6. When a match is found it stops and shows a notification.
+    7. Click Stop Reroll to close it.
+
+
 UPDATES
 -------
   When a new version is available you will see a blue Update button at the top of the launcher.
