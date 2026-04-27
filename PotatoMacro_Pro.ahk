@@ -462,7 +462,7 @@ BuyClickUpgrades() {
         Sleep 60
     }
 
-    ; Buy the green button one row above it until maxed
+    ; Buy the 2nd and 3rd green buttons above it until maxed
     clickY2 := clickY1 - CLICK_ROW_HEIGHT
     if (clickY2 >= CLICK_BTN_Y_TOP) {
         loop {
@@ -472,21 +472,25 @@ BuyClickUpgrades() {
             Sleep 60
         }
     }
+    clickY3 := clickY1 - (CLICK_ROW_HEIGHT * 2)
+    if (clickY3 >= CLICK_BTN_Y_TOP) {
+        loop {
+            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY3), COLOR_GREEN, TOLERANCE)
+                break
+            WiggleClick(CLICK_BTN_X, clickY3)
+            Sleep 60
+        }
+    }
 }
 
 SpamClickHome(duration := 2500) {
-    global WIN_X, WIN_Y, CLICK_HOME_X, CLICK_HOME_Y
     ActivateTarget()
     Send "{h}"
     Sleep 300
-    MouseMove WIN_X+CLICK_HOME_X, WIN_Y+CLICK_HOME_Y, 3
-    Sleep 100
     deadline := A_TickCount + duration
     while A_TickCount < deadline {
-        SendInput "{LButton Down}"
-        Sleep 20
-        SendInput "{LButton Up}"
-        Sleep 20
+        SendInput "{Space}"
+        Sleep 40
     }
 }
 
@@ -506,7 +510,6 @@ RunLoopClicks() {
         SpamClickHome(2500)
         SellGolden()
         SpamClickHome(2000)
-        SellGolden()
         DoPrestige(loopStart)
         if ASCEND_ENABLED
             DoAscend()
