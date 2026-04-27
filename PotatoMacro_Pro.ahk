@@ -416,7 +416,7 @@ BuyClickUpgrades() {
     Sleep 600
     MouseMove WIN_X+CLICK_SCROLL_X, WIN_Y+CLICK_SCROLL_Y, 0
     Sleep 100
-    loop 8
+    loop 15
         Send "{WheelDown}"
     Sleep 250
 
