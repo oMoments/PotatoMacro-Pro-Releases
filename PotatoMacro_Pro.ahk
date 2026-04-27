@@ -416,7 +416,7 @@ BuyClickUpgrades() {
     Sleep 600
     MouseMove WIN_X+CLICK_SCROLL_X, WIN_Y+CLICK_SCROLL_Y, 0
     Sleep 100
-    loop 15
+    loop 8
         Send "{WheelDown}"
     Sleep 250
 
@@ -433,7 +433,6 @@ BuyClickUpgrades() {
         }
         if (lowestY != -1)
             break
-        Send "{WheelUp}"
         Send "{WheelUp}"
         Sleep 150
     }
@@ -459,7 +458,7 @@ BuyClickUpgrades() {
         if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY1), COLOR_GREEN, TOLERANCE)
             break
         WiggleClick(CLICK_BTN_X, clickY1)
-        Sleep 60
+        Sleep 25
     }
 
     ; Buy the 2nd and 3rd green buttons above it until maxed
@@ -469,7 +468,7 @@ BuyClickUpgrades() {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY2), COLOR_GREEN, TOLERANCE)
                 break
             WiggleClick(CLICK_BTN_X, clickY2)
-            Sleep 60
+            Sleep 25
         }
     }
     clickY3 := clickY1 - (CLICK_ROW_HEIGHT * 2)
@@ -478,7 +477,7 @@ BuyClickUpgrades() {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY3), COLOR_GREEN, TOLERANCE)
                 break
             WiggleClick(CLICK_BTN_X, clickY3)
-            Sleep 60
+            Sleep 25
         }
     }
 }
