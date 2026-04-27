@@ -500,10 +500,8 @@ BuyClickUpgrades() {
     }
 }
 
-SpamClickHome(duration := 2500) {
+SpamSpace(duration := 2500) {
     ActivateTarget()
-    Send "{h}"
-    Sleep 300
     deadline := A_TickCount + duration
     while A_TickCount < deadline {
         SendInput "{Space}"
@@ -517,19 +515,19 @@ RunLoopClicks() {
         loopStart := A_TickCount
         SellGolden()
         BuyClickUpgrades()
-        SpamClickHome(2500)
+        SpamSpace(2500)
         SellGolden()
         BuyClickUpgrades()
-        SpamClickHome(2500)
+        SpamSpace(2500)
         SellGolden()
         BuyClickUpgrades()
-        SpamClickHome(2500)
+        SpamSpace(2500)
         SellGolden()
         BuyClickUpgrades()
-        SpamClickHome(2500)
+        SpamSpace(2500)
         SellGolden()
         BuyClickUpgrades()
-        SpamClickHome(2000)
+        SpamSpace(2000)
         DoPrestige(loopStart)
         if ASCEND_ENABLED
             DoAscend()
