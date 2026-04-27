@@ -420,7 +420,7 @@ BuyClickUpgrades() {
         Send "{WheelDown}"
     Sleep 250
 
-    ; Scroll up until deepest green button is visible
+    ; Scroll up until deepest green button is visible (fine scan so we don't skip past it)
     lowestY := -1
     loop 30 {
         y := CLICK_BTN_Y_BOT
@@ -429,7 +429,7 @@ BuyClickUpgrades() {
                 lowestY := y
                 break
             }
-            y -= CLICK_ROW_HEIGHT
+            y -= 3
         }
         if (lowestY != -1)
             break
@@ -461,7 +461,7 @@ BuyClickUpgrades() {
         Sleep 25
     }
 
-    ; Buy the 2nd and 3rd green buttons above it until maxed
+    ; Buy the 2nd-5th green buttons above it until maxed
     clickY2 := clickY1 - CLICK_ROW_HEIGHT
     if (clickY2 >= CLICK_BTN_Y_TOP) {
         loop {
@@ -477,6 +477,24 @@ BuyClickUpgrades() {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY3), COLOR_GREEN, TOLERANCE)
                 break
             WiggleClick(CLICK_BTN_X, clickY3)
+            Sleep 25
+        }
+    }
+    clickY4 := clickY1 - (CLICK_ROW_HEIGHT * 3)
+    if (clickY4 >= CLICK_BTN_Y_TOP) {
+        loop {
+            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY4), COLOR_GREEN, TOLERANCE)
+                break
+            WiggleClick(CLICK_BTN_X, clickY4)
+            Sleep 25
+        }
+    }
+    clickY5 := clickY1 - (CLICK_ROW_HEIGHT * 4)
+    if (clickY5 >= CLICK_BTN_Y_TOP) {
+        loop {
+            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY5), COLOR_GREEN, TOLERANCE)
+                break
+            WiggleClick(CLICK_BTN_X, clickY5)
             Sleep 25
         }
     }
