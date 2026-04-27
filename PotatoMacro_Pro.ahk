@@ -46,18 +46,23 @@ PRESTIGE_NOW_Y := Integer(IniRead(cfg, "Prestige", "NowY",     404))
 PRESTIGE_CON_X := Integer(IniRead(cfg, "Prestige", "ConfirmX", 875))
 PRESTIGE_CON_Y := Integer(IniRead(cfg, "Prestige", "ConfirmY", 708))
 
-; Detect which RDP slot this window occupies (by Y screen position)
-; Slot 1 = y<640 (main/top), Slot 2 = 640-1279 (mid), Slot 3 = ≥1280 (bot)
+; Slot-specific inventory coords (dev launcher saves to [Inventory1/2/3] per Y position).
+; Falls back to generic [Inventory] for the public launcher which uses a single section.
 invSlot    := (WIN_Y < 640) ? 1 : (WIN_Y < 1280) ? 2 : 3
 invSection := "Inventory" invSlot
-INV_PRES_X   := Integer(IniRead(cfg, invSection, "PresPotatoX", 0))
-INV_PRES_Y   := Integer(IniRead(cfg, invSection, "PresPotatoY", 0))
-INV_PRES_EQX := Integer(IniRead(cfg, invSection, "PresEquipX",  0))
-INV_PRES_EQY := Integer(IniRead(cfg, invSection, "PresEquipY",  0))
-INV_BON_X    := Integer(IniRead(cfg, invSection, "BonPotatoX",  0))
-INV_BON_Y    := Integer(IniRead(cfg, invSection, "BonPotatoY",  0))
-INV_BON_EQX  := Integer(IniRead(cfg, invSection, "BonEquipX",   0))
-INV_BON_EQY  := Integer(IniRead(cfg, invSection, "BonEquipY",   0))
+InvRead(key) {
+    global cfg, invSection
+    v := IniRead(cfg, invSection, key, "")
+    return (v != "") ? Integer(v) : Integer(IniRead(cfg, "Inventory", key, 0))
+}
+INV_PRES_X   := InvRead("PresPotatoX")
+INV_PRES_Y   := InvRead("PresPotatoY")
+INV_PRES_EQX := InvRead("PresEquipX")
+INV_PRES_EQY := InvRead("PresEquipY")
+INV_BON_X    := InvRead("BonPotatoX")
+INV_BON_Y    := InvRead("BonPotatoY")
+INV_BON_EQX  := InvRead("BonEquipX")
+INV_BON_EQY  := InvRead("BonEquipY")
 INV_SWAP_ON  := Integer(IniRead(cfg, "Inventory", "Enabled", 0))
 INV_ENABLED  := (INV_SWAP_ON && INV_PRES_X > 0 && INV_BON_X > 0)
 
