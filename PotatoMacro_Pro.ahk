@@ -422,7 +422,6 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
         Sleep 250
     }
 
-    ; Scroll up until deepest green button is visible (fine 3px scan so we don't skip past it)
     lowestY := -1
     loop 5 {
         y := CLICK_BTN_Y_BOT
@@ -431,7 +430,7 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
                 lowestY := y
                 break
             }
-            y -= 3
+            y -= CLICK_ROW_HEIGHT
         }
         if (lowestY != -1)
             break
