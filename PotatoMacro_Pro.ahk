@@ -454,51 +454,43 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
     topY := lowestY
     while (topY > CLICK_BTN_Y_TOP && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+topY-1), COLOR_GREEN, TOLERANCE))
         topY--
-    clickY1 := (topY + lowestY) // 2
+    clickY := (topY + lowestY) // 2
 
-    ; Buy deepest green until maxed
-    loop {
-        if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY1), COLOR_GREEN, TOLERANCE)
-            break
-        WiggleClick(CLICK_BTN_X, clickY1)
-        Sleep 25
-    }
-
-    ; Buy the 2nd-5th green buttons above it until maxed
-    clickY2 := clickY1 - CLICK_ROW_HEIGHT
-    if (buyCount >= 2 && clickY2 >= CLICK_BTN_Y_TOP) {
-        loop {
-            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY2), COLOR_GREEN, TOLERANCE)
+    ; Buy up to buyCount greens — after each one, re-scan and scroll up if needed
+    bought := 0
+    scrollTries := 0
+    while (bought < buyCount && scrollTries <= 6) {
+        ; Buy current green until maxed
+        if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE) {
+            loop {
+                if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE)
+                    break
+                WiggleClick(CLICK_BTN_X, clickY)
+                Sleep 25
+            }
+            bought++
+            if (bought >= buyCount)
                 break
-            WiggleClick(CLICK_BTN_X, clickY2)
-            Sleep 25
+            scrollTries := 0
         }
-    }
-    clickY3 := clickY1 - (CLICK_ROW_HEIGHT * 2)
-    if (buyCount >= 3 && clickY3 >= CLICK_BTN_Y_TOP) {
-        loop {
-            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY3), COLOR_GREEN, TOLERANCE)
+        ; Scan visible area from bottom for next green
+        scanY := CLICK_BTN_Y_BOT
+        nextY := -1
+        while (scanY >= CLICK_BTN_Y_TOP) {
+            if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+scanY), COLOR_GREEN, TOLERANCE) {
+                nextY := scanY
                 break
-            WiggleClick(CLICK_BTN_X, clickY3)
-            Sleep 25
+            }
+            scanY -= 3
         }
-    }
-    clickY4 := clickY1 - (CLICK_ROW_HEIGHT * 3)
-    if (buyCount >= 4 && clickY4 >= CLICK_BTN_Y_TOP) {
-        loop {
-            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY4), COLOR_GREEN, TOLERANCE)
-                break
-            WiggleClick(CLICK_BTN_X, clickY4)
-            Sleep 25
-        }
-    }
-    clickY5 := clickY1 - (CLICK_ROW_HEIGHT * 4)
-    if (buyCount >= 5 && clickY5 >= CLICK_BTN_Y_TOP) {
-        loop {
-            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY5), COLOR_GREEN, TOLERANCE)
-                break
-            WiggleClick(CLICK_BTN_X, clickY5)
-            Sleep 25
+        if (nextY != -1) {
+            clickY := nextY
+            scrollTries := 0
+        } else {
+            ; No green visible — scroll up to reveal more
+            Send "{WheelUp}"
+            Sleep 150
+            scrollTries++
         }
     }
 }
