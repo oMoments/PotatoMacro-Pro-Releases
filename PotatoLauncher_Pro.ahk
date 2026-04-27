@@ -426,10 +426,13 @@ mainGui.Add("Text", "x844 y275 w220", "Macro Mode")
 fld["MacroModeGen"]    := mainGui.Add("Radio", "x844 y295 w220 Group -Theme", "Generators")
 fld["MacroModeClicks"] := mainGui.Add("Radio", "x844 y317 w220 -Theme",        "Click Upgrades")
 
-btnStartShop := mainGui.Add("Button", "x10  y358 w540 h24  Background2E5E8E", "▶ Start Shop Loop")
+btnStartShop := mainGui.Add("Button", "x10  y358 w405 h24  Background2E5E8E", "▶ Start Shop Loop")
 btnStartShop.SetFont("s9 cWhite Bold", "Segoe UI")
-btnStopShop  := mainGui.Add("Button", "x550 y358 w540 h24  Background5E2E2E", "■ Stop Shop")
+btnStopShop  := mainGui.Add("Button", "x415 y358 w405 h24  Background5E2E2E", "■ Stop Shop")
 btnStopShop.SetFont("s9 cWhite Bold", "Segoe UI")
+btnSnap      := mainGui.Add("Button", "x820 y358 w270 h24  Background2A2A3E", "⊞ Snap RDP Windows")
+btnSnap.SetFont("s9 cCDD6F4 Bold", "Segoe UI")
+btnSnap.OnEvent("Click", SnapWindows)
 btnStart     := mainGui.Add("Button", "x10  y388 w540 h267 Background2D7D3A", "Start  [F4]")
 btnStart.SetFont("s12 cWhite Bold", "Segoe UI")
 btnStopAll   := mainGui.Add("Button", "x550 y388 w540 h267 Background7D2D2D", "Stop All  [F5]")
@@ -584,6 +587,48 @@ UpdateAscendControls(*) {
 
 ; =============================================
 ;   POPULATE LIST
+; =============================================
+GetLeftMonitor(&monLeft, &monTop) {
+    primary := MonitorGetPrimary()
+    count   := MonitorGetCount()
+    loop count {
+        if (A_Index = primary)
+            continue
+        MonitorGet(A_Index, &L, &T, &R, &B)
+        if (L < 0) {
+            monLeft := L
+            monTop  := T
+            return true
+        }
+    }
+    MonitorGet(primary, &L, &T, , )
+    monLeft := L
+    monTop  := T
+    return false
+}
+
+SnapWindows(*) {
+    GetLeftMonitor(&monLeft, &monTop)
+    slots := []
+    rdpHwnds := WinGetList("ahk_exe mstsc.exe")
+    for hwnd in rdpHwnds {
+        slots.Push(hwnd)
+        if (slots.Length >= 3)
+            break
+    }
+    if slots.Length = 0 {
+        MsgBox "No RDP windows found to snap."
+        return
+    }
+    slotOffsets := [0, 640, 1280]
+    loop Min(3, slots.Length) {
+        hwnd := slots[A_Index]
+        WinRestore "ahk_id " hwnd
+        WinMove monLeft, monTop + slotOffsets[A_Index], 1080, 640, "ahk_id " hwnd
+    }
+    MsgBox "Snapped " slots.Length " RDP window(s)."
+}
+
 ; =============================================
 RefreshList(*) {
     listBox.Opt("-Redraw")
