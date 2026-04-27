@@ -459,12 +459,15 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
     ; Buy up to buyCount greens — after each one, re-scan visible area for next green
     bought := 0
     while bought < buyCount {
-        ; Buy current green until maxed
+        ; Buy current green until maxed (fast click — no wiggle needed for buy buttons)
+        MouseMove WIN_X+CLICK_BTN_X, WIN_Y+clickY, 0
         loop {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE)
                 break
-            WiggleClick(CLICK_BTN_X, clickY)
-            Sleep 25
+            SendInput "{LButton Down}"
+            Sleep 15
+            SendInput "{LButton Up}"
+            Sleep 15
         }
         bought++
         if (bought >= buyCount)
@@ -488,6 +491,7 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
         if (nextY = -1)
             break
         clickY := nextY
+        MouseMove WIN_X+CLICK_BTN_X, WIN_Y+clickY, 0
     }
 }
 
