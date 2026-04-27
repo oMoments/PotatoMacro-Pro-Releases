@@ -409,7 +409,7 @@ DoShop() {
 }
 
 ; =============================================
-BuyClickUpgrades(scrollCount := 15) {
+BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
     global WIN_X, WIN_Y, CLICK_BTN_X, CLICK_BTN_Y_TOP, CLICK_BTN_Y_BOT, CLICK_ROW_HEIGHT, CLICK_SCROLL_X, CLICK_SCROLL_Y, COLOR_GREEN, TOLERANCE
     ActivateTarget()
     Send "1"
@@ -466,7 +466,7 @@ BuyClickUpgrades(scrollCount := 15) {
 
     ; Buy the 2nd-5th green buttons above it until maxed
     clickY2 := clickY1 - CLICK_ROW_HEIGHT
-    if (clickY2 >= CLICK_BTN_Y_TOP) {
+    if (buyCount >= 2 && clickY2 >= CLICK_BTN_Y_TOP) {
         loop {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY2), COLOR_GREEN, TOLERANCE)
                 break
@@ -475,7 +475,7 @@ BuyClickUpgrades(scrollCount := 15) {
         }
     }
     clickY3 := clickY1 - (CLICK_ROW_HEIGHT * 2)
-    if (clickY3 >= CLICK_BTN_Y_TOP) {
+    if (buyCount >= 3 && clickY3 >= CLICK_BTN_Y_TOP) {
         loop {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY3), COLOR_GREEN, TOLERANCE)
                 break
@@ -484,7 +484,7 @@ BuyClickUpgrades(scrollCount := 15) {
         }
     }
     clickY4 := clickY1 - (CLICK_ROW_HEIGHT * 3)
-    if (clickY4 >= CLICK_BTN_Y_TOP) {
+    if (buyCount >= 4 && clickY4 >= CLICK_BTN_Y_TOP) {
         loop {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY4), COLOR_GREEN, TOLERANCE)
                 break
@@ -493,7 +493,7 @@ BuyClickUpgrades(scrollCount := 15) {
         }
     }
     clickY5 := clickY1 - (CLICK_ROW_HEIGHT * 4)
-    if (clickY5 >= CLICK_BTN_Y_TOP) {
+    if (buyCount >= 5 && clickY5 >= CLICK_BTN_Y_TOP) {
         loop {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY5), COLOR_GREEN, TOLERANCE)
                 break
@@ -517,7 +517,7 @@ RunLoopClicks() {
     while running {
         loopStart := A_TickCount
         SellGolden()
-        BuyClickUpgrades(3)
+        BuyClickUpgrades(3, 3)
         SpamSpace(2500)
         SellGolden()
         BuyClickUpgrades()
