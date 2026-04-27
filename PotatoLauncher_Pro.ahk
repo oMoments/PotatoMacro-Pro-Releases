@@ -345,6 +345,17 @@ KeybindRow(label, y, key, xOff := 0) {
         .OnEvent("Click", RecordKey.Bind(key))
 }
 
+InvSlotRow(label, rowY, keyX, keyY, xBase) {
+    global mainGui, fld
+    mainGui.Add("Text",   "x" (xBase)     " y" (rowY+3) " w55",                        label)
+    mainGui.Add("Text",   "x" (xBase+57)  " y" (rowY+3) " w12",                        "X:")
+    fld[keyX] := mainGui.Add("Edit", "x" (xBase+71)  " y" rowY     " w36 Number -Theme Background2A2A3E")
+    mainGui.Add("Text",   "x" (xBase+110) " y" (rowY+3) " w12",                        "Y:")
+    fld[keyY] := mainGui.Add("Edit", "x" (xBase+124) " y" rowY     " w36 Number -Theme Background2A2A3E")
+    mainGui.Add("Button", "x" (xBase+163) " y" (rowY-1) " w22 h21", "+")
+        .OnEvent("Click", PickCoord.Bind(keyX, keyY, ""))
+}
+
 CompactCoord(label, y, keyX, keyY, xOff, pickTip := "") {
     global mainGui, fld
     mainGui.Add("Text",   "x" xOff         " y" (y+3) " w42",                       label)
@@ -482,11 +493,18 @@ loop 4 {
     CompactCoord("Btn " (A_Index + 4), rowY, "Shop2Btn" (A_Index + 4) "X", "Shop2Btn" (A_Index + 4) "Y", 795, "Click Buy Button " (A_Index + 4) " in the shop")
 }
 
-mainGui.Add("GroupBox", "x520 y350 w575 h150", " Inventory Swap ")
-CoordRow("• Prestige Potato",  374, "InvPresX",   "InvPresY",   "", "Click the potato that buffs prestige points",    515)
-CoordRow("• Equip (prestige)", 398, "InvPresEqX", "InvPresEqY", "", "Click the equip button for the prestige potato", 515)
-CoordRow("• Bonus Potato",     422, "InvBonX",    "InvBonY",    "", "Click the potato that buffs potato gain",        515)
-CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the equip button for the bonus potato",   515)
+mainGui.Add("GroupBox", "x520 y350 w575 h240", " Inventory Swap ")
+mainGui.Add("Text", "x525 y368 w185 Center cCDD6F4", "— Slot 1 (Top) —")
+mainGui.Add("Text", "x715 y368 w185 Center cCDD6F4", "— Slot 2 (Mid) —")
+mainGui.Add("Text", "x905 y368 w185 Center cCDD6F4", "— Slot 3 (Bot) —")
+loop 3 {
+    s  := A_Index
+    xb := 525 + (s - 1) * 190
+    InvSlotRow("PresPot", 388, Format("InvPresX{}",   s), Format("InvPresY{}",   s), xb)
+    InvSlotRow("PresEq",  410, Format("InvPresEqX{}", s), Format("InvPresEqY{}", s), xb)
+    InvSlotRow("BonPot",  432, Format("InvBonX{}",    s), Format("InvBonY{}",    s), xb)
+    InvSlotRow("BonEq",   454, Format("InvBonEqX{}",  s), Format("InvBonEqY{}",  s), xb)
+}
 
 mainGui.Add("Button", "x10 y590 w1080 h28 Background3D5A80", "Save Settings").OnEvent("Click", SaveSettings)
 
@@ -662,15 +680,19 @@ LoadSettings() {
     fld["AscPath"].Value    := (ascPath = 1) ? 1 : 0
     fld["AscPath2"].Value   := (ascPath = 1) ? 0 : 1
     UpdateAscendControls()
-    fld["InvEnabled"].Value  := IniRead(CFG, "Inventory", "Enabled",      0)
-    fld["InvPresX"].Value    := IniRead(CFG, "Inventory", "PresPotatoX",  0)
-    fld["InvPresY"].Value    := IniRead(CFG, "Inventory", "PresPotatoY",  0)
-    fld["InvPresEqX"].Value  := IniRead(CFG, "Inventory", "PresEquipX",   0)
-    fld["InvPresEqY"].Value  := IniRead(CFG, "Inventory", "PresEquipY",   0)
-    fld["InvBonX"].Value     := IniRead(CFG, "Inventory", "BonPotatoX",   0)
-    fld["InvBonY"].Value     := IniRead(CFG, "Inventory", "BonPotatoY",   0)
-    fld["InvBonEqX"].Value   := IniRead(CFG, "Inventory", "BonEquipX",    0)
-    fld["InvBonEqY"].Value   := IniRead(CFG, "Inventory", "BonEquipY",    0)
+    fld["InvEnabled"].Value := IniRead(CFG, "Inventory", "Enabled", 0)
+    loop 3 {
+        s   := A_Index
+        sec := "Inventory" s
+        fld[Format("InvPresX{}",   s)].Value := IniRead(CFG, sec, "PresPotatoX", 0)
+        fld[Format("InvPresY{}",   s)].Value := IniRead(CFG, sec, "PresPotatoY", 0)
+        fld[Format("InvPresEqX{}", s)].Value := IniRead(CFG, sec, "PresEquipX",  0)
+        fld[Format("InvPresEqY{}", s)].Value := IniRead(CFG, sec, "PresEquipY",  0)
+        fld[Format("InvBonX{}",    s)].Value := IniRead(CFG, sec, "BonPotatoX",  0)
+        fld[Format("InvBonY{}",    s)].Value := IniRead(CFG, sec, "BonPotatoY",  0)
+        fld[Format("InvBonEqX{}", s)].Value := IniRead(CFG, sec, "BonEquipX",   0)
+        fld[Format("InvBonEqY{}", s)].Value := IniRead(CFG, sec, "BonEquipY",   0)
+    }
     fld["RerollBtnX"].Value     := IniRead(CFG, "Reroll", "BtnX",          0)
     fld["RerollBtnY"].Value     := IniRead(CFG, "Reroll", "BtnY",          0)
     fld["RerollConX"].Value     := IniRead(CFG, "Reroll", "ConfirmX",      0)
@@ -736,14 +758,18 @@ SaveSettings(*) {
     IniWrite fld["AscConX"].Value,   CFG, "Ascend",     "ConfirmX"
     IniWrite fld["AscConY"].Value,   CFG, "Ascend",     "ConfirmY"
     IniWrite fld["InvEnabled"].Value, CFG, "Inventory", "Enabled"
-    IniWrite fld["InvPresX"].Value,   CFG, "Inventory", "PresPotatoX"
-    IniWrite fld["InvPresY"].Value,   CFG, "Inventory", "PresPotatoY"
-    IniWrite fld["InvPresEqX"].Value, CFG, "Inventory", "PresEquipX"
-    IniWrite fld["InvPresEqY"].Value, CFG, "Inventory", "PresEquipY"
-    IniWrite fld["InvBonX"].Value,    CFG, "Inventory", "BonPotatoX"
-    IniWrite fld["InvBonY"].Value,    CFG, "Inventory", "BonPotatoY"
-    IniWrite fld["InvBonEqX"].Value,  CFG, "Inventory", "BonEquipX"
-    IniWrite fld["InvBonEqY"].Value,  CFG, "Inventory", "BonEquipY"
+    loop 3 {
+        s   := A_Index
+        sec := "Inventory" s
+        IniWrite fld[Format("InvPresX{}",   s)].Value, CFG, sec, "PresPotatoX"
+        IniWrite fld[Format("InvPresY{}",   s)].Value, CFG, sec, "PresPotatoY"
+        IniWrite fld[Format("InvPresEqX{}", s)].Value, CFG, sec, "PresEquipX"
+        IniWrite fld[Format("InvPresEqY{}", s)].Value, CFG, sec, "PresEquipY"
+        IniWrite fld[Format("InvBonX{}",    s)].Value, CFG, sec, "BonPotatoX"
+        IniWrite fld[Format("InvBonY{}",    s)].Value, CFG, sec, "BonPotatoY"
+        IniWrite fld[Format("InvBonEqX{}", s)].Value, CFG, sec, "BonEquipX"
+        IniWrite fld[Format("InvBonEqY{}", s)].Value, CFG, sec, "BonEquipY"
+    }
     IniWrite fld["RerollBtnX"].Value,     CFG, "Reroll", "BtnX"
     IniWrite fld["RerollBtnY"].Value,     CFG, "Reroll", "BtnY"
     IniWrite fld["RerollConX"].Value,     CFG, "Reroll", "ConfirmX"
