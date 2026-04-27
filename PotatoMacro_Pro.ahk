@@ -409,20 +409,23 @@ DoShop() {
 }
 
 ; =============================================
-BuyClickUpgrades() {
+BuyClickUpgrades(doScroll := true) {
     global WIN_X, WIN_Y, CLICK_BTN_X, CLICK_BTN_Y_TOP, CLICK_BTN_Y_BOT, CLICK_ROW_HEIGHT, CLICK_SCROLL_X, CLICK_SCROLL_Y, COLOR_GREEN, TOLERANCE
     ActivateTarget()
     Send "1"
     Sleep 600
-    MouseMove WIN_X+CLICK_SCROLL_X, WIN_Y+CLICK_SCROLL_Y, 0
-    Sleep 100
-    loop 15
-        Send "{WheelDown}"
-    Sleep 250
+    if doScroll {
+        MouseMove WIN_X+CLICK_SCROLL_X, WIN_Y+CLICK_SCROLL_Y, 0
+        Sleep 100
+        loop 15
+            Send "{WheelDown}"
+        Sleep 250
+    }
 
     ; Scroll up until deepest green button is visible (fine scan so we don't skip past it)
+    ; Loop capped at 8 — if nothing found quickly, all upgrades are likely maxed, bail out fast
     lowestY := -1
-    loop 30 {
+    loop 8 {
         y := CLICK_BTN_Y_BOT
         while (y >= CLICK_BTN_Y_TOP) {
             if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE) {
@@ -514,7 +517,7 @@ RunLoopClicks() {
     while running {
         loopStart := A_TickCount
         SellGolden()
-        BuyClickUpgrades()
+        BuyClickUpgrades(false)
         SpamSpace(2500)
         SellGolden()
         BuyClickUpgrades()
