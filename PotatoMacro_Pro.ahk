@@ -456,24 +456,20 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
         topY--
     clickY := (topY + lowestY) // 2
 
-    ; Buy up to buyCount greens — after each one, re-scan and scroll up if needed
+    ; Buy up to buyCount greens — after each one, re-scan visible area for next green
     bought := 0
-    scrollTries := 0
-    while (bought < buyCount && scrollTries <= 6) {
+    while bought < buyCount {
         ; Buy current green until maxed
-        if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE) {
-            loop {
-                if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE)
-                    break
-                WiggleClick(CLICK_BTN_X, clickY)
-                Sleep 25
-            }
-            bought++
-            if (bought >= buyCount)
+        loop {
+            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE)
                 break
-            scrollTries := 0
+            WiggleClick(CLICK_BTN_X, clickY)
+            Sleep 25
         }
-        ; Scan visible area from bottom for next green
+        bought++
+        if (bought >= buyCount)
+            break
+        ; Re-scan visible area from bottom for next green
         scanY := CLICK_BTN_Y_BOT
         nextY := -1
         while (scanY >= CLICK_BTN_Y_TOP) {
@@ -483,15 +479,9 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
             }
             scanY -= 3
         }
-        if (nextY != -1) {
-            clickY := nextY
-            scrollTries := 0
-        } else {
-            ; No green visible — scroll up to reveal more
-            Send "{WheelUp}"
-            Sleep 150
-            scrollTries++
-        }
+        if (nextY = -1)
+            break
+        clickY := nextY
     }
 }
 
