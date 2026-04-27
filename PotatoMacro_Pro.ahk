@@ -469,15 +469,21 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
         bought++
         if (bought >= buyCount)
             break
-        ; Re-scan visible area from bottom for next green
-        scanY := CLICK_BTN_Y_BOT
+        ; Re-scan visible area from bottom for next green, scroll up if needed
         nextY := -1
-        while (scanY >= CLICK_BTN_Y_TOP) {
-            if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+scanY), COLOR_GREEN, TOLERANCE) {
-                nextY := scanY
-                break
+        loop 3 {
+            scanY := CLICK_BTN_Y_BOT
+            while (scanY >= CLICK_BTN_Y_TOP) {
+                if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+scanY), COLOR_GREEN, TOLERANCE) {
+                    nextY := scanY
+                    break
+                }
+                scanY -= 3
             }
-            scanY -= 3
+            if (nextY != -1)
+                break
+            Send "{WheelUp}"
+            Sleep 150
         }
         if (nextY = -1)
             break
