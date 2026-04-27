@@ -424,7 +424,7 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
 
     ; Scroll up until deepest green button is visible (fine 3px scan so we don't skip past it)
     lowestY := -1
-    loop 30 {
+    loop 5 {
         y := CLICK_BTN_Y_BOT
         while (y >= CLICK_BTN_Y_TOP) {
             if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE) {
@@ -436,7 +436,8 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
         if (lowestY != -1)
             break
         Send "{WheelUp}"
-        Send "{WheelUp}"
+        if (Mod(A_Index, 2) = 0)
+            Send "{WheelUp}"
         Sleep 150
     }
     if (lowestY = -1)
