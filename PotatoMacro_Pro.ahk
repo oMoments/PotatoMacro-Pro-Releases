@@ -15,6 +15,8 @@ MODE        := A_Args.Length >= 5 ? A_Args[5] : "loop"
 
 cfg := ASSET_DIR "\PotatoConfig_Pro.ini"
 
+MACRO_MODE := IniRead(cfg, "Main", "MacroMode", "generators")
+
 WIN_W := Integer(IniRead(cfg, "Window", "ResW", 1920))
 WIN_H := Integer(IniRead(cfg, "Window", "ResH", 1080))
 
@@ -24,6 +26,15 @@ GEN_BTN_Y_BOT  := Integer(IniRead(cfg, "Generators", "YBot",       930))
 GEN_ROW_HEIGHT := Integer(IniRead(cfg, "Generators", "RowHeight",    20))
 SCROLL_X       := Integer(IniRead(cfg, "Generators", "ScrollX",     948))
 SCROLL_Y       := Integer(IniRead(cfg, "Generators", "ScrollY",     583))
+
+CLICK_BTN_X      := Integer(IniRead(cfg, "ClickUpgrades", "BtnX",      0))
+CLICK_BTN_Y_TOP  := Integer(IniRead(cfg, "ClickUpgrades", "YTop",      0))
+CLICK_BTN_Y_BOT  := Integer(IniRead(cfg, "ClickUpgrades", "YBot",      0))
+CLICK_ROW_HEIGHT := Integer(IniRead(cfg, "ClickUpgrades", "RowHeight",  20))
+CLICK_SCROLL_X   := Integer(IniRead(cfg, "ClickUpgrades", "ScrollX",   0))
+CLICK_SCROLL_Y   := Integer(IniRead(cfg, "ClickUpgrades", "ScrollY",   0))
+CLICK_HOME_X     := Integer(IniRead(cfg, "ClickUpgrades", "HomeX",     0))
+CLICK_HOME_Y     := Integer(IniRead(cfg, "ClickUpgrades", "HomeY",     0))
 
 SELL_TAB_X := Integer(IniRead(cfg, "Sell", "GoldenTabX", 1183))
 SELL_TAB_Y := Integer(IniRead(cfg, "Sell", "GoldenTabY",  591))
@@ -398,6 +409,102 @@ DoShop() {
 }
 
 ; =============================================
+BuyClickUpgrades() {
+    global WIN_X, WIN_Y, CLICK_BTN_X, CLICK_BTN_Y_TOP, CLICK_BTN_Y_BOT, CLICK_ROW_HEIGHT, CLICK_SCROLL_X, CLICK_SCROLL_Y, COLOR_GREEN, TOLERANCE
+    ActivateTarget()
+    Send "1"
+    Sleep 600
+    MouseMove WIN_X+CLICK_SCROLL_X, WIN_Y+CLICK_SCROLL_Y, 0
+    Sleep 100
+    loop 15
+        Send "{WheelDown}"
+    Sleep 250
+
+    emptyScrolls := 0
+    loop 60 {
+        lowestY := -1
+        y := CLICK_BTN_Y_BOT
+        while (y >= CLICK_BTN_Y_TOP) {
+            if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE) {
+                lowestY := y
+                break
+            }
+            y -= CLICK_ROW_HEIGHT
+        }
+        if (lowestY = -1) {
+            emptyScrolls++
+            if (emptyScrolls >= 15)
+                return
+            Send "{WheelUp}"
+            Send "{WheelUp}"
+            Sleep 130
+            continue
+        }
+        emptyScrolls := 0
+        fineY := lowestY + CLICK_ROW_HEIGHT - 1
+        while (fineY > lowestY) {
+            if (fineY <= CLICK_BTN_Y_BOT && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+fineY), COLOR_GREEN, TOLERANCE)) {
+                lowestY := fineY
+                break
+            }
+            fineY -= 2
+        }
+        topY := lowestY
+        while (topY > CLICK_BTN_Y_TOP && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+topY-1), COLOR_GREEN, TOLERANCE))
+            topY--
+        clickY := (topY + lowestY) // 2
+        loop {
+            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE)
+                break
+            WiggleClick(CLICK_BTN_X, clickY)
+            Sleep 60
+        }
+    }
+}
+
+SpamClickHome(duration := 2500) {
+    global WIN_X, WIN_Y, CLICK_HOME_X, CLICK_HOME_Y
+    ActivateTarget()
+    Send "{h}"
+    Sleep 300
+    MouseMove WIN_X+CLICK_HOME_X, WIN_Y+CLICK_HOME_Y, 3
+    Sleep 100
+    deadline := A_TickCount + duration
+    while A_TickCount < deadline {
+        SendInput "{LButton Down}"
+        Sleep 20
+        SendInput "{LButton Up}"
+        Sleep 20
+    }
+}
+
+RunLoopClicks() {
+    global running, ASCEND_ENABLED
+    while running {
+        loopStart := A_TickCount
+        SellGolden()
+        BuyClickUpgrades()
+        SpamClickHome(2500)
+        SellGolden()
+        SpamClickHome(2500)
+        SellGolden()
+        SpamClickHome(2500)
+        SellGolden()
+        BuyClickUpgrades()
+        SpamClickHome(2500)
+        SellGolden()
+        SpamClickHome(2000)
+        SellGolden()
+        DoPrestige(loopStart)
+        if ASCEND_ENABLED
+            DoAscend()
+        elapsed := A_TickCount - loopStart
+        ToolTip "Loop: " Round(elapsed/1000, 2) "s"
+        SetTimer () => ToolTip(), -3000
+    }
+}
+
+; =============================================
 DoReroll() {
     global WIN_X, WIN_Y, REROLL_BTN_X, REROLL_BTN_Y, REROLL_CON_X, REROLL_CON_Y
     ActivateTarget()
@@ -503,5 +610,8 @@ if (MODE = "shop") {
         }
     }
 } else {
-    SetTimer RunLoop, -1
+    if (MACRO_MODE = "clicks")
+        SetTimer RunLoopClicks, -1
+    else
+        SetTimer RunLoop, -1
 }
