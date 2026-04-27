@@ -490,7 +490,11 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
         }
         if (nextY = -1)
             break
-        clickY := nextY
+        ; Centre the click within the green button
+        nextTopY := nextY
+        while (nextTopY > CLICK_BTN_Y_TOP && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+nextTopY-1), COLOR_GREEN, TOLERANCE))
+            nextTopY--
+        clickY := (nextTopY + nextY) // 2
         MouseMove WIN_X+CLICK_BTN_X, WIN_Y+clickY, 0
     }
 }
