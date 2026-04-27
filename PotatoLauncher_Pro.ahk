@@ -310,26 +310,26 @@ CoordRow(label, y, keyX, keyY, desc := "", pickTip := "", xOff := 0) {
         mainGui.Add("Text", "x" (354+xOff) " y" (y+3) " w156 c888BA8", desc)
 }
 
-CoordRowX(label, y, key, desc := "", pickTip := "") {
+CoordRowX(label, y, key, desc := "", pickTip := "", xOff := 0) {
     global mainGui, fld
-    mainGui.Add("Text", "x10 y" (y+3) " w175", label)
-    mainGui.Add("Text", "x185 y" (y+3) " w18", "X:")
-    fld[key] := mainGui.Add("Edit", "x203 y" y " w50 Number -Theme Background2A2A3E")
-    mainGui.Add("Button", "x256 y" (y-1) " w22 h21", "+")
+    mainGui.Add("Text", "x" (10+xOff) " y" (y+3) " w175", label)
+    mainGui.Add("Text", "x" (185+xOff) " y" (y+3) " w18", "X:")
+    fld[key] := mainGui.Add("Edit", "x" (203+xOff) " y" y " w50 Number -Theme Background2A2A3E")
+    mainGui.Add("Button", "x" (256+xOff) " y" (y-1) " w22 h21", "+")
         .OnEvent("Click", PickSingleX.Bind(key, pickTip))
     if desc != ""
-        mainGui.Add("Text", "x283 y" (y+3) " w227 c888BA8", desc)
+        mainGui.Add("Text", "x" (283+xOff) " y" (y+3) " w227 c888BA8", desc)
 }
 
-CoordRowY(label, y, key, desc := "", pickTip := "") {
+CoordRowY(label, y, key, desc := "", pickTip := "", xOff := 0) {
     global mainGui, fld
-    mainGui.Add("Text", "x10 y" (y+3) " w175", label)
-    mainGui.Add("Text", "x185 y" (y+3) " w18", "Y:")
-    fld[key] := mainGui.Add("Edit", "x203 y" y " w50 Number -Theme Background2A2A3E")
-    mainGui.Add("Button", "x256 y" (y-1) " w22 h21", "+")
+    mainGui.Add("Text", "x" (10+xOff) " y" (y+3) " w175", label)
+    mainGui.Add("Text", "x" (185+xOff) " y" (y+3) " w18", "Y:")
+    fld[key] := mainGui.Add("Edit", "x" (203+xOff) " y" y " w50 Number -Theme Background2A2A3E")
+    mainGui.Add("Button", "x" (256+xOff) " y" (y-1) " w22 h21", "+")
         .OnEvent("Click", PickSingleY.Bind(key, pickTip))
     if desc != ""
-        mainGui.Add("Text", "x283 y" (y+3) " w227 c888BA8", desc)
+        mainGui.Add("Text", "x" (283+xOff) " y" (y+3) " w227 c888BA8", desc)
 }
 
 SectionHeader(label, y) {
@@ -384,7 +384,7 @@ WM_GETMINMAXINFO(wParam, lParam, msg, hwnd) {
 mainGui.BackColor := "1E1E2E"
 mainGui.SetFont("s9 cCDD6F4", "Segoe UI")
 
-tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  Genetics  ", "  Click Upgrades  "])
+tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  Genetics  ", "  Gen / Click Upgrades  "])
 
 ; =============================================
 ;   TAB 1 — MAIN
@@ -404,27 +404,27 @@ btnUpdate.SetFont("s9 cWhite", "Segoe UI")
 btnUpdate.Opt("Background336699")
 btnUpdate.OnEvent("Click", DoUpdate)
 
-; --- 4 evenly-spaced toggle GroupBoxes ---
-mainGui.Add("GroupBox", "x5 y260 w255 h90", "")
-fld["AscEnabled"] := mainGui.Add("CheckBox", "x20 y282 w150 -Theme", "Ascend")
+; --- 4 evenly-spaced toggle GroupBoxes (centered: 4×255 + 5×16 = 1100) ---
+mainGui.Add("GroupBox", "x16 y260 w255 h90", "")
+fld["AscEnabled"] := mainGui.Add("CheckBox", "x31 y282 w220 -Theme", "Ascend")
 fld["AscEnabled"].OnEvent("Click", UpdateAscendControls)
-fld["AscPath"]  := mainGui.Add("Radio", "x35 y304 w210 Group -Theme", "Blessing of Abundance")
-fld["AscPath2"] := mainGui.Add("Radio", "x35 y324 w210 -Theme",       "Blessing of Prestige")
+fld["AscPath"]  := mainGui.Add("Radio", "x46 y304 w205 Group -Theme", "Blessing of Abundance")
+fld["AscPath2"] := mainGui.Add("Radio", "x46 y324 w205 -Theme",       "Blessing of Prestige")
 
-mainGui.Add("GroupBox", "x265 y260 w255 h90", "")
-fld["InvEnabled"] := mainGui.Add("CheckBox", "x280 y282 w220 -Theme", "Inventory Swap")
-mainGui.Add("Text", "x280 y300 w230 c888BA8", "Equips your prestige potato right before each prestige, then swaps back afterwards.")
+mainGui.Add("GroupBox", "x287 y260 w255 h90", "")
+fld["InvEnabled"] := mainGui.Add("CheckBox", "x302 y282 w220 -Theme", "Inventory Swap")
+mainGui.Add("Text", "x302 y300 w228 c888BA8", "Equips your prestige potato right before each prestige, then swaps back afterwards.")
 
-mainGui.Add("GroupBox", "x525 y260 w255 h90", "")
-fld["ShopAuto"] := mainGui.Add("CheckBox", "x540 y282 w220 -Theme", "Auto Shop  (every 5 min)")
+mainGui.Add("GroupBox", "x558 y260 w255 h90", "")
+fld["ShopAuto"] := mainGui.Add("CheckBox", "x573 y282 w220 -Theme", "Auto Shop  (every 5 min)")
 fld["ShopAuto"].OnEvent("Click", UpdateShopControls)
-fld["SkipRocks"]    := mainGui.Add("Radio", "x555 y304 w195 Group -Theme", "Skip Rock / Useless Rock")
-fld["SkipRocksOff"] := mainGui.Add("Radio", "x555 y324 w100 -Theme",        "Buy All")
+fld["SkipRocks"]    := mainGui.Add("Radio", "x588 y304 w195 Group -Theme", "Skip Rock / Useless Rock")
+fld["SkipRocksOff"] := mainGui.Add("Radio", "x588 y324 w100 -Theme",        "Buy All")
 
-mainGui.Add("GroupBox", "x785 y260 w255 h90", "")
-mainGui.Add("Text", "x800 y275 w220", "Macro Mode")
-fld["MacroModeGen"]    := mainGui.Add("Radio", "x800 y295 w220 Group -Theme", "Generators")
-fld["MacroModeClicks"] := mainGui.Add("Radio", "x800 y317 w220 -Theme",        "Click Upgrades")
+mainGui.Add("GroupBox", "x829 y260 w255 h90", "")
+mainGui.Add("Text", "x844 y275 w220", "Macro Mode")
+fld["MacroModeGen"]    := mainGui.Add("Radio", "x844 y295 w220 Group -Theme", "Generators")
+fld["MacroModeClicks"] := mainGui.Add("Radio", "x844 y317 w220 -Theme",        "Click Upgrades")
 
 btnStartShop := mainGui.Add("Button", "x10  y358 w540 h24  Background2E5E8E", "▶ Start Shop Loop")
 btnStartShop.SetFont("s9 cWhite Bold", "Segoe UI")
@@ -458,24 +458,14 @@ mainGui.Add("GroupBox", "x5 y85 w510 h78", " Sell ")
 CoordRow("• Golden Potatoes Tab", 104, "SellTabX", "SellTabY", "", "Click the golden potatoes tab in the sell screen")
 CoordRow("• Sell All Button",     126, "SellAllX", "SellAllY", "", "Click the sell all button")
 
-mainGui.Add("GroupBox", "x5 y170 w510 h140", " Generators ")
-CoordRowX("• Buy Button (column X)", 189, "GenBtnX",  "any green buy button", "Click any green buy button in the generators list")
-CoordRowY("• Y Top",                 211, "GenYTop",  "the highest buy button", "Click the highest visible buy button")
-CoordRowY("• Y Bot",                 233, "GenYBot",  "the lowest buy button",  "Click the lowest visible buy button")
-mainGui.Add("Text", "x10 y258 w175", "• Row Spacing:")
-fld["GenRowH"] := mainGui.Add("Edit", "x203 y255 w50 Number -Theme Background2A2A3E")
-mainGui.Add("Button", "x256 y254 w22 h21", "+").OnEvent("Click", MeasureRowH)
-mainGui.Add("Text", "x283 y258 w227 c888BA8", "any buy button, then the one below it")
-CoordRow("• Scroll Area", 277, "ScrollX", "ScrollY", "anywhere in the generator list", "Click anywhere inside the generator scroll list")
+mainGui.Add("GroupBox", "x5 y170 w510 h78", " Prestige ")
+CoordRow("• Prestige Now",     189, "PresNowX", "PresNowY", "", "Click the Prestige Now button")
+CoordRow("• Prestige Confirm", 211, "PresConX", "PresConY", "", "Click the confirm button on the prestige popup")
 
-mainGui.Add("GroupBox", "x5 y317 w510 h78", " Prestige ")
-CoordRow("• Prestige Now",     336, "PresNowX", "PresNowY", "", "Click the Prestige Now button")
-CoordRow("• Prestige Confirm", 358, "PresConX", "PresConY", "", "Click the confirm button on the prestige popup")
-
-mainGui.Add("GroupBox", "x5 y402 w510 h128", " Ascend ")
-CoordRow("• Blessing of Abundance", 428, "AscAbuX", "AscAbuY", "", "Click the Blessing of Abundance path button")
-CoordRow("• Blessing of Prestige",  450, "AscPreX", "AscPreY", "", "Click the Blessing of Prestige path button")
-CoordRow("• Ascend Confirm",        472, "AscConX", "AscConY", "", "Click the confirm button on the ascend popup")
+mainGui.Add("GroupBox", "x5 y255 w510 h128", " Ascend ")
+CoordRow("• Blessing of Abundance", 281, "AscAbuX", "AscAbuY", "", "Click the Blessing of Abundance path button")
+CoordRow("• Blessing of Prestige",  303, "AscPreX", "AscPreY", "", "Click the Blessing of Prestige path button")
+CoordRow("• Ascend Confirm",        325, "AscConX", "AscConY", "", "Click the confirm button on the ascend popup")
 
 ; ============= RIGHT COLUMN =============
 mainGui.Add("GroupBox", "x520 y85 w575 h100", " Keybinds ")
@@ -531,24 +521,36 @@ btnStopReroll.SetFont("s9 cWhite Bold", "Segoe UI")
 mainGui.Add("Button", "x10 y590 w1080 h28 Background3D5A80", "Save Settings").OnEvent("Click", SaveSettings)
 
 ; =============================================
-;   TAB 4 — CLICK UPGRADES
+;   TAB 4 — GEN / CLICK UPGRADES
 ; =============================================
 tabs.UseTab(4)
 
-mainGui.Add("Text", "x10 y36 w80 c888BA8", "the")
-mainGui.Add("Text", "x28 y33 w22 h21 Border Center", "+")
-mainGui.Add("Text", "x55 y36 w900 c888BA8", "acts as a coordinate finder — click it, then click the spot in Roblox")
+mainGui.Add("Text", "x10 y36 w22 c888BA8", "the")
+mainGui.Add("Text", "x30 y33 w22 h21 Border Center", "+")
+mainGui.Add("Text", "x57 y36 w900 c888BA8", "acts as a coordinate finder — click it, then click the spot in Roblox")
 
-mainGui.Add("GroupBox", "x5 y55 w510 h160", " Click Upgrades ")
-CoordRowX("• Buy Button (col X)", 74,  "ClickBtnX",    "any green buy button in the list",    "Click any green buy button in the click upgrades list")
-CoordRowY("• Y Top",              96,  "ClickYTop",    "the highest buy button",               "Click the highest visible buy button")
-CoordRowY("• Y Bot",              118, "ClickYBot",    "the lowest buy button (half peeking)", "Click the lowest visible buy button")
+; ============= LEFT — GENERATORS =============
+mainGui.Add("GroupBox", "x5 y55 w510 h140", " Generators ")
+CoordRowX("• Buy Button (col X)", 74,  "GenBtnX",  "any green buy button",             "Click any green buy button in the generators list")
+CoordRowY("• Y Top",              96,  "GenYTop",  "the highest buy button",            "Click the highest visible buy button")
+CoordRowY("• Y Bot",              118, "GenYBot",  "the lowest buy button",             "Click the lowest visible buy button")
 mainGui.Add("Text",   "x10 y143 w175", "• Row Spacing:")
-fld["ClickRowH"] := mainGui.Add("Edit", "x203 y140 w50 Number -Theme Background2A2A3E")
-mainGui.Add("Button", "x256 y139 w22 h21", "+").OnEvent("Click", MeasureClickRowH)
+fld["GenRowH"] := mainGui.Add("Edit", "x203 y140 w50 Number -Theme Background2A2A3E")
+mainGui.Add("Button", "x256 y139 w22 h21", "+").OnEvent("Click", MeasureRowH)
 mainGui.Add("Text",   "x283 y143 w227 c888BA8", "any buy button, then the one below it")
-CoordRow("• Scroll Area", 162, "ClickScrollX", "ClickScrollY", "anywhere in the click list", "Click anywhere inside the click upgrades scroll list")
-CoordRow("• Home Potato", 184, "ClickHomeX",   "ClickHomeY",   "center of the potato",       "Click the center of the potato on the home screen")
+CoordRow("• Scroll Area", 162, "ScrollX", "ScrollY", "anywhere in the generator list", "Click anywhere inside the generator scroll list")
+
+; ============= RIGHT — CLICK UPGRADES =============
+mainGui.Add("GroupBox", "x520 y55 w575 h165", " Click Upgrades ")
+CoordRowX("• Buy Button (col X)", 74,  "ClickBtnX",    "any green buy button in the list",    "Click any green buy button in the click upgrades list", 515)
+CoordRowY("• Y Top",              96,  "ClickYTop",    "the highest buy button",               "Click the highest visible buy button",                  515)
+CoordRowY("• Y Bot",              118, "ClickYBot",    "the lowest buy button",                "Click the lowest visible buy button",                   515)
+mainGui.Add("Text",   "x" (10+515) " y143 w175", "• Row Spacing:")
+fld["ClickRowH"] := mainGui.Add("Edit", "x" (203+515) " y140 w50 Number -Theme Background2A2A3E")
+mainGui.Add("Button", "x" (256+515) " y139 w22 h21", "+").OnEvent("Click", MeasureClickRowH)
+mainGui.Add("Text",   "x" (283+515) " y143 w227 c888BA8", "any buy button, then the one below it")
+CoordRow("• Scroll Area", 162, "ClickScrollX", "ClickScrollY", "anywhere in the click list", "Click anywhere inside the click upgrades scroll list", 515)
+CoordRow("• Home Potato", 184, "ClickHomeX",   "ClickHomeY",   "center of the potato",       "Click the center of the potato on the home screen",  515)
 
 mainGui.Add("Button", "x10 y590 w1080 h28 Background3D5A80", "Save Settings").OnEvent("Click", SaveSettings)
 
