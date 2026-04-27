@@ -409,15 +409,15 @@ DoShop() {
 }
 
 ; =============================================
-BuyClickUpgrades(doScroll := true) {
+BuyClickUpgrades(scrollCount := 15) {
     global WIN_X, WIN_Y, CLICK_BTN_X, CLICK_BTN_Y_TOP, CLICK_BTN_Y_BOT, CLICK_ROW_HEIGHT, CLICK_SCROLL_X, CLICK_SCROLL_Y, COLOR_GREEN, TOLERANCE
     ActivateTarget()
     Send "1"
     Sleep 600
-    if doScroll {
+    if scrollCount > 0 {
         MouseMove WIN_X+CLICK_SCROLL_X, WIN_Y+CLICK_SCROLL_Y, 0
         Sleep 100
-        loop 15
+        loop scrollCount
             Send "{WheelDown}"
         Sleep 250
     }
@@ -517,7 +517,7 @@ RunLoopClicks() {
     while running {
         loopStart := A_TickCount
         SellGolden()
-        BuyClickUpgrades(false)
+        BuyClickUpgrades(3)
         SpamSpace(2500)
         SellGolden()
         BuyClickUpgrades()
