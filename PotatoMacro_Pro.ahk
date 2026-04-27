@@ -174,7 +174,7 @@ SellGolden() {
 ; =============================================
 BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
     global WIN_X, WIN_Y, GEN_BTN_X, GEN_ROW_HEIGHT, COLOR_GREEN, TOLERANCE
-    Sleep 150
+    Sleep 80
 
     ; Coarse scan bottom→up in row steps to find deepest green button
     lowestY := -1
@@ -214,7 +214,7 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
             break
         WiggleClick(GEN_BTN_X, clickY)
         clickCount++
-        Sleep 60
+        Sleep 40
     }
 
     if (maxBottomClicks = 0) {
@@ -224,7 +224,7 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
                 if !ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+y2), COLOR_GREEN, TOLERANCE)
                     break
                 WiggleClick(GEN_BTN_X, y2)
-                Sleep 60
+                Sleep 40
             }
         }
         y3 := clickY - (GEN_ROW_HEIGHT * 2)
@@ -233,7 +233,7 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
                 if !ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+y3), COLOR_GREEN, TOLERANCE)
                     break
                 WiggleClick(GEN_BTN_X, y3)
-                Sleep 60
+                Sleep 40
             }
         }
     }
@@ -249,7 +249,7 @@ ScrollAndBuy(maxBottomClicks := 0, scrollFull := false) {
 
     loop 20
         Send "{WheelDown}"
-    Sleep 250
+    Sleep 150
 
     loop 30 {
         lowestGreenY := -1
@@ -262,7 +262,7 @@ ScrollAndBuy(maxBottomClicks := 0, scrollFull := false) {
             y -= GEN_ROW_HEIGHT
         }
         if (lowestGreenY != -1) {
-            Sleep 100
+            Sleep 50
             BuyAtCurrentScrollRange(GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, maxBottomClicks)
             return
         }
