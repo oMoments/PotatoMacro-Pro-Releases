@@ -384,7 +384,7 @@ WM_GETMINMAXINFO(wParam, lParam, msg, hwnd) {
 mainGui.BackColor := "1E1E2E"
 mainGui.SetFont("s9 cCDD6F4", "Segoe UI")
 
-tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  Genetics  ", "  Gen / Click Upgrades  "])
+tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  Gen / Click Upgrades  ", "  Genetics  "])
 
 ; =============================================
 ;   TAB 1 — MAIN
@@ -491,9 +491,9 @@ CoordRow("• Equip (bonus)",    446, "InvBonEqX",  "InvBonEqY",  "", "Click the
 mainGui.Add("Button", "x10 y590 w1080 h28 Background3D5A80", "Save Settings").OnEvent("Click", SaveSettings)
 
 ; =============================================
-;   TAB 3 — GENETICS
+;   TAB 4 — GENETICS
 ; =============================================
-tabs.UseTab(3)
+tabs.UseTab(4)
 
 mainGui.Add("GroupBox", "x5 y36 w510 h78", " Reroll ")
 CoordRow("• Reroll Button",  55, "RerollBtnX", "RerollBtnY", "", "Click the Reroll All Slots button")
@@ -521,9 +521,9 @@ btnStopReroll.SetFont("s9 cWhite Bold", "Segoe UI")
 mainGui.Add("Button", "x10 y590 w1080 h28 Background3D5A80", "Save Settings").OnEvent("Click", SaveSettings)
 
 ; =============================================
-;   TAB 4 — GEN / CLICK UPGRADES
+;   TAB 3 — GEN / CLICK UPGRADES
 ; =============================================
-tabs.UseTab(4)
+tabs.UseTab(3)
 
 mainGui.Add("Text", "x10 y36 w22 c888BA8", "the")
 mainGui.Add("Text", "x30 y33 w22 h21 Border Center", "+")
