@@ -420,9 +420,9 @@ BuyClickUpgrades() {
         Send "{WheelDown}"
     Sleep 250
 
-    emptyScrolls := 0
-    loop 60 {
-        lowestY := -1
+    ; Scroll up until deepest green button is visible
+    lowestY := -1
+    loop 30 {
         y := CLICK_BTN_Y_BOT
         while (y >= CLICK_BTN_Y_TOP) {
             if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE) {
@@ -431,32 +431,44 @@ BuyClickUpgrades() {
             }
             y -= CLICK_ROW_HEIGHT
         }
-        if (lowestY = -1) {
-            emptyScrolls++
-            if (emptyScrolls >= 15)
-                return
-            Send "{WheelUp}"
-            Send "{WheelUp}"
-            Sleep 130
-            continue
+        if (lowestY != -1)
+            break
+        Send "{WheelUp}"
+        Send "{WheelUp}"
+        Sleep 150
+    }
+    if (lowestY = -1)
+        return
+
+    ; Fine scan to get exact bottom edge, then find button centre
+    fineY := lowestY + CLICK_ROW_HEIGHT - 1
+    while (fineY > lowestY) {
+        if (fineY <= CLICK_BTN_Y_BOT && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+fineY), COLOR_GREEN, TOLERANCE)) {
+            lowestY := fineY
+            break
         }
-        emptyScrolls := 0
-        fineY := lowestY + CLICK_ROW_HEIGHT - 1
-        while (fineY > lowestY) {
-            if (fineY <= CLICK_BTN_Y_BOT && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+fineY), COLOR_GREEN, TOLERANCE)) {
-                lowestY := fineY
-                break
-            }
-            fineY -= 2
-        }
-        topY := lowestY
-        while (topY > CLICK_BTN_Y_TOP && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+topY-1), COLOR_GREEN, TOLERANCE))
-            topY--
-        clickY := (topY + lowestY) // 2
+        fineY -= 2
+    }
+    topY := lowestY
+    while (topY > CLICK_BTN_Y_TOP && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+topY-1), COLOR_GREEN, TOLERANCE))
+        topY--
+    clickY1 := (topY + lowestY) // 2
+
+    ; Buy deepest green until maxed
+    loop {
+        if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY1), COLOR_GREEN, TOLERANCE)
+            break
+        WiggleClick(CLICK_BTN_X, clickY1)
+        Sleep 60
+    }
+
+    ; Buy the green button one row above it until maxed
+    clickY2 := clickY1 - CLICK_ROW_HEIGHT
+    if (clickY2 >= CLICK_BTN_Y_TOP) {
         loop {
-            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE)
+            if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY2), COLOR_GREEN, TOLERANCE)
                 break
-            WiggleClick(CLICK_BTN_X, clickY)
+            WiggleClick(CLICK_BTN_X, clickY2)
             Sleep 60
         }
     }
