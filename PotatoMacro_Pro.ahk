@@ -445,7 +445,7 @@ DoShop() {
 
 ; =============================================
 BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
-    global WIN_X, WIN_Y, CLICK_BTN_X, CLICK_BTN_Y_TOP, CLICK_BTN_Y_BOT, CLICK_ROW_HEIGHT, CLICK_SCROLL_X, CLICK_SCROLL_Y, COLOR_GREEN, TOLERANCE
+    global WIN_X, WIN_Y, CLICK_BTN_X, CLICK_BTN_Y_TOP, CLICK_BTN_Y_BOT, CLICK_ROW_HEIGHT, CLICK_SCROLL_X, CLICK_SCROLL_Y, COLOR_GREEN, COLOR_RED, TOLERANCE
     ActivateTarget()
     Send "1"
     Sleep 600
@@ -457,39 +457,55 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
         Sleep 250
     }
 
-    lowestY := -1
-    loop 5 {
-        y := CLICK_BTN_Y_BOT
+    ; Fine-step scan — finds green even when row height setting is imprecise
+    ScanLowest() {
+        local y := CLICK_BTN_Y_BOT
         while (y >= CLICK_BTN_Y_TOP) {
-            if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE) {
-                lowestY := y
+            if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE)
+                return y
+            y -= 3
+        }
+        return -1
+    }
+
+    foundY := ScanLowest()
+    if (foundY != -1) {
+        ; Smart scroll down: stop when red appears one row below deepest green
+        loop 40 {
+            belowY := foundY + CLICK_ROW_HEIGHT
+            if (belowY <= CLICK_BTN_Y_BOT && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+belowY), COLOR_RED, TOLERANCE))
+                break
+            Send "{WheelDown}"
+            Send "{WheelDown}"
+            Sleep 60
+            nextY := ScanLowest()
+            if (nextY = -1) {
+                Send "{WheelUp}"
+                Send "{WheelUp}"
+                Sleep 80
                 break
             }
-            y -= CLICK_ROW_HEIGHT
+            foundY := nextY
         }
-        if (lowestY != -1)
-            break
-        Send "{WheelUp}"
-        if (Mod(A_Index, 2) = 0)
+    } else {
+        ; No green visible after initial scroll — scroll back up to find it
+        loop 15 {
             Send "{WheelUp}"
-        Sleep 150
-    }
-    if (lowestY = -1)
-        return
-
-    ; Fine scan to get exact bottom edge, then find button centre
-    fineY := lowestY + CLICK_ROW_HEIGHT - 1
-    while (fineY > lowestY) {
-        if (fineY <= CLICK_BTN_Y_BOT && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+fineY), COLOR_GREEN, TOLERANCE)) {
-            lowestY := fineY
-            break
+            Send "{WheelUp}"
+            Sleep 150
+            foundY := ScanLowest()
+            if (foundY != -1)
+                break
         }
-        fineY -= 2
+        if (foundY = -1)
+            return
     }
-    topY := lowestY
+
+    ; Find top edge of the button then click the centre
+    topY := foundY
     while (topY > CLICK_BTN_Y_TOP && ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+topY-1), COLOR_GREEN, TOLERANCE))
         topY--
-    clickY := (topY + lowestY) // 2
+    clickY := (topY + foundY) // 2
 
     ; Buy up to buyCount greens — after each one, re-scan visible area for next green
     bought := 0
@@ -513,7 +529,7 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
             break
         ; Re-scan visible area from bottom for next green, scroll up if needed
         nextY := -1
-        loop 3 {
+        loop 6 {
             scanY := CLICK_BTN_Y_BOT
             while (scanY >= CLICK_BTN_Y_TOP) {
                 if ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+scanY), COLOR_GREEN, TOLERANCE) {
