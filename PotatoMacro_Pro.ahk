@@ -107,6 +107,7 @@ REROLL_GENBON  := Integer(IniRead(cfg, "Reroll", "StopGenBonus",   0))
 REROLL_PRESPNT := Integer(IniRead(cfg, "Reroll", "StopPresPoints", 0))
 REROLL_GOLDCON := Integer(IniRead(cfg, "Reroll", "StopGoldConv",   0))
 REROLL_COSMIC  := Integer(IniRead(cfg, "Reroll", "StopCosmicConv", 0))
+REROLL_MAGIC   := Integer(IniRead(cfg, "Reroll", "StopMagicConv",  0))
 
 COLOR_GREEN    := 0x48BB78
 COLOR_RED      := 0xEF4444   ; unaffordable generator button
@@ -603,7 +604,7 @@ DoReroll() {
 ; =============================================
 IsTargetGenetic() {
     global WIN_X, WIN_Y, REROLL_SCAN_X, REROLL_SCAN_Y
-    global REROLL_MYTHIC, REROLL_SECRET, REROLL_POTATO, REROLL_GENBON, REROLL_PRESPNT, REROLL_GOLDCON, REROLL_COSMIC
+    global REROLL_MYTHIC, REROLL_SECRET, REROLL_POTATO, REROLL_GENBON, REROLL_PRESPNT, REROLL_GOLDCON, REROLL_COSMIC, REROLL_MAGIC
     ToolTip
     Sleep 50
     try {
@@ -629,6 +630,8 @@ IsTargetGenetic() {
         }
         if REROLL_COSMIC
             names.Push("Cosmic")
+        if REROLL_MAGIC
+            names.Push("Magic")
 
         if (rarities.Length > 0 && names.Length > 0) {
             for r in rarities

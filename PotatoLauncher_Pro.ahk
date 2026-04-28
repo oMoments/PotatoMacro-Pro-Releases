@@ -268,9 +268,6 @@ MeasureRowH(*) {
     MeasureRowHTo("GenRowH")
 }
 
-MeasureClickRowH(*) {
-    MeasureRowHTo("ClickRowH")
-}
 
 MeasureRowHTo(targetKey, *) {
     global mainGui, fld
@@ -384,7 +381,7 @@ WM_GETMINMAXINFO(wParam, lParam, msg, hwnd) {
 mainGui.BackColor := "1E1E2E"
 mainGui.SetFont("s9 cCDD6F4", "Segoe UI")
 
-tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  Gen / Click Upgrades  ", "  Genetics  "])
+tabs := mainGui.Add("Tab3", "x0 y0 w1100 h685", ["  Main  ", "  Settings  ", "  Generators  ", "  Genetics  "])
 
 ; =============================================
 ;   TAB 1 — MAIN
@@ -421,10 +418,6 @@ fld["ShopAuto"].OnEvent("Click", UpdateShopControls)
 fld["SkipRocks"]    := mainGui.Add("Radio", "x588 y304 w195 Group -Theme", "Skip Rock / Useless Rock")
 fld["SkipRocksOff"] := mainGui.Add("Radio", "x588 y324 w100 -Theme",        "Buy All")
 
-mainGui.Add("GroupBox", "x829 y260 w255 h90", "")
-mainGui.Add("Text", "x844 y275 w220", "Macro Mode")
-fld["MacroModeGen"]    := mainGui.Add("Radio", "x844 y295 w220 Group -Theme", "Generators")
-fld["MacroModeClicks"] := mainGui.Add("Radio", "x844 y317 w220 -Theme",        "Click Upgrades")
 
 btnStartShop := mainGui.Add("Button", "x10  y358 w540 h24  Background2E5E8E", "▶ Start Shop Loop")
 btnStartShop.SetFont("s9 cWhite Bold", "Segoe UI")
@@ -506,12 +499,13 @@ mainGui.Add("GroupBox", "x520 y36 w575 h55", " Stop on Rarity ")
 fld["StopMythic"] := mainGui.Add("CheckBox", "x535 y56 w140 -Theme", "Mythic")
 fld["StopSecret"] := mainGui.Add("CheckBox", "x680 y56 w140 -Theme", "Secret")
 
-mainGui.Add("GroupBox", "x520 y97 w575 h148", " Stop on Name ")
+mainGui.Add("GroupBox", "x520 y97 w575 h170", " Stop on Name ")
 fld["StopPotatoProd"] := mainGui.Add("CheckBox", "x535 y117 w270 -Theme", "Potato Production")
 fld["StopGenBonus"]   := mainGui.Add("CheckBox", "x535 y139 w270 -Theme", "Generator Bonus")
 fld["StopPresPoints"] := mainGui.Add("CheckBox", "x535 y161 w270 -Theme", "Prestige Points")
 fld["StopGoldConv"]   := mainGui.Add("CheckBox", "x535 y183 w270 -Theme", "Gold Conversion")
 fld["StopCosmicConv"] := mainGui.Add("CheckBox", "x535 y205 w270 -Theme", "Cosmic Clicks Conversion")
+fld["StopMagicConv"]  := mainGui.Add("CheckBox", "x535 y227 w270 -Theme", "Magic Clicks Conversion")
 
 btnStartReroll := mainGui.Add("Button", "x5  y255 w540 h24 Background2E5E8E", "▶ Start Reroll Loop")
 btnStartReroll.SetFont("s9 cWhite Bold", "Segoe UI")
@@ -540,17 +534,6 @@ mainGui.Add("Button", "x256 y139 w22 h21", "+").OnEvent("Click", MeasureRowH)
 mainGui.Add("Text",   "x283 y143 w227 c888BA8", "any buy button, then the one below it")
 CoordRow("• Scroll Area", 162, "ScrollX", "ScrollY", "anywhere in the generator list", "Click anywhere inside the generator scroll list")
 
-; ============= RIGHT — CLICK UPGRADES =============
-mainGui.Add("GroupBox", "x520 y55 w575 h165", " Click Upgrades ")
-CoordRowX("• Buy Button (col X)", 74,  "ClickBtnX",    "any green buy button in the list",    "Click any green buy button in the click upgrades list", 515)
-CoordRowY("• Y Top",              96,  "ClickYTop",    "the highest buy button",               "Click the highest visible buy button",                  515)
-CoordRowY("• Y Bot",              118, "ClickYBot",    "the lowest buy button",                "Click the lowest visible buy button",                   515)
-mainGui.Add("Text",   "x" (10+515) " y143 w175", "• Row Spacing:")
-fld["ClickRowH"] := mainGui.Add("Edit", "x" (203+515) " y140 w50 Number -Theme Background2A2A3E")
-mainGui.Add("Button", "x" (256+515) " y139 w22 h21", "+").OnEvent("Click", MeasureClickRowH)
-mainGui.Add("Text",   "x" (283+515) " y143 w227 c888BA8", "any buy button, then the one below it")
-CoordRow("• Scroll Area", 162, "ClickScrollX", "ClickScrollY", "anywhere in the click list", "Click anywhere inside the click upgrades scroll list", 515)
-CoordRow("• Home Potato", 184, "ClickHomeX",   "ClickHomeY",   "center of the potato",       "Click the center of the potato on the home screen",  515)
 
 mainGui.Add("Button", "x10 y590 w1080 h28 Background3D5A80", "Save Settings").OnEvent("Click", SaveSettings)
 
@@ -684,6 +667,7 @@ LoadSettings() {
     fld["StopPresPoints"].Value := IniRead(CFG, "Reroll", "StopPresPoints", 0)
     fld["StopGoldConv"].Value   := IniRead(CFG, "Reroll", "StopGoldConv",  0)
     fld["StopCosmicConv"].Value := IniRead(CFG, "Reroll", "StopCosmicConv", 0)
+    fld["StopMagicConv"].Value  := IniRead(CFG, "Reroll", "StopMagicConv",  0)
     fld["ShopAuto"].Value    := IniRead(CFG, "Shop",      "AutoEnabled",   0)
     skipRocksVal := Integer(IniRead(CFG, "Shop", "SkipRocks", 1))
     fld["SkipRocks"].Value    := (skipRocksVal = 1) ? 1 : 0
@@ -696,17 +680,6 @@ LoadSettings() {
     fld["KB_Start"].Value := IniRead(CFG, "Hotkeys", "Start", "F4")
     fld["KB_Stop"].Value  := IniRead(CFG, "Hotkeys", "Stop",  "F5")
     fld["KB_Front"].Value := IniRead(CFG, "Hotkeys", "Front", ".")
-    fld["ClickBtnX"].Value    := IniRead(CFG, "ClickUpgrades", "BtnX",      0)
-    fld["ClickYTop"].Value    := IniRead(CFG, "ClickUpgrades", "YTop",      0)
-    fld["ClickYBot"].Value    := IniRead(CFG, "ClickUpgrades", "YBot",      0)
-    fld["ClickRowH"].Value    := IniRead(CFG, "ClickUpgrades", "RowHeight", 0)
-    fld["ClickScrollX"].Value := IniRead(CFG, "ClickUpgrades", "ScrollX",   0)
-    fld["ClickScrollY"].Value := IniRead(CFG, "ClickUpgrades", "ScrollY",   0)
-    fld["ClickHomeX"].Value   := IniRead(CFG, "ClickUpgrades", "HomeX",     0)
-    fld["ClickHomeY"].Value   := IniRead(CFG, "ClickUpgrades", "HomeY",     0)
-    macroMode := IniRead(CFG, "Main", "MacroMode", "generators")
-    fld["MacroModeGen"].Value    := (macroMode = "generators") ? 1 : 0
-    fld["MacroModeClicks"].Value := (macroMode = "clicks")     ? 1 : 0
 }
 
 SaveSettings(*) {
@@ -757,21 +730,13 @@ SaveSettings(*) {
     IniWrite fld["StopPresPoints"].Value, CFG, "Reroll", "StopPresPoints"
     IniWrite fld["StopGoldConv"].Value,   CFG, "Reroll", "StopGoldConv"
     IniWrite fld["StopCosmicConv"].Value, CFG, "Reroll", "StopCosmicConv"
+    IniWrite fld["StopMagicConv"].Value,  CFG, "Reroll", "StopMagicConv"
     IniWrite fld["ShopAuto"].Value,   CFG, "Shop",      "AutoEnabled"
     IniWrite fld["SkipRocks"].Value ? 1 : 0, CFG, "Shop", "SkipRocks"
     loop 8 {
         IniWrite fld["Shop2Btn" A_Index "X"].Value, CFG, "Shop", "L2Btn" A_Index "X"
         IniWrite fld["Shop2Btn" A_Index "Y"].Value, CFG, "Shop", "L2Btn" A_Index "Y"
     }
-    IniWrite fld["ClickBtnX"].Value,    CFG, "ClickUpgrades", "BtnX"
-    IniWrite fld["ClickYTop"].Value,    CFG, "ClickUpgrades", "YTop"
-    IniWrite fld["ClickYBot"].Value,    CFG, "ClickUpgrades", "YBot"
-    IniWrite fld["ClickRowH"].Value,    CFG, "ClickUpgrades", "RowHeight"
-    IniWrite fld["ClickScrollX"].Value, CFG, "ClickUpgrades", "ScrollX"
-    IniWrite fld["ClickScrollY"].Value, CFG, "ClickUpgrades", "ScrollY"
-    IniWrite fld["ClickHomeX"].Value,   CFG, "ClickUpgrades", "HomeX"
-    IniWrite fld["ClickHomeY"].Value,   CFG, "ClickUpgrades", "HomeY"
-    IniWrite fld["MacroModeGen"].Value ? "generators" : "clicks", CFG, "Main", "MacroMode"
     ToolTip "Settings saved!"
     SetTimer () => ToolTip(), -2000
 }
