@@ -109,6 +109,7 @@ REROLL_GOLDCON := Integer(IniRead(cfg, "Reroll", "StopGoldConv",   0))
 REROLL_COSMIC  := Integer(IniRead(cfg, "Reroll", "StopCosmicConv", 0))
 
 COLOR_GREEN    := 0x48BB78
+COLOR_RED      := 0xEF4444   ; unaffordable generator button
 COLOR_PRESTIGE := 0xBD69FF
 TOLERANCE      := 20
 running        := true
@@ -249,37 +250,67 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
 }
 
 ScrollAndBuy(maxBottomClicks := 0, scrollFull := false, scrollDown := 20) {
-    global WIN_X, WIN_Y, SCROLL_X, SCROLL_Y, GEN_BTN_X, GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, GEN_ROW_HEIGHT, COLOR_GREEN, TOLERANCE
+    global WIN_X, WIN_Y, SCROLL_X, SCROLL_Y, GEN_BTN_X, GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, GEN_ROW_HEIGHT, COLOR_GREEN, COLOR_RED, TOLERANCE
     ActivateTarget()
     Send "2"
     Sleep 600
+    MouseMove WIN_X+SCROLL_X, WIN_Y+SCROLL_Y, 0
+    Sleep 100
     if (scrollDown > 0) {
-        MouseMove WIN_X+SCROLL_X, WIN_Y+SCROLL_Y, 0
-        Sleep 100
         loop scrollDown
             Send "{WheelDown}"
         Sleep 150
     }
 
-    loop 30 {
-        lowestGreenY := -1
-        y := GEN_BTN_Y_BOT
+    ; Scan visible area for lowest green button
+    ScanLowest() {
+        local y := GEN_BTN_Y_BOT
         while (y >= GEN_BTN_Y_TOP) {
-            if ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE) {
-                lowestGreenY := y
-                break
-            }
+            if ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE)
+                return y
             y -= GEN_ROW_HEIGHT
         }
-        if (lowestGreenY != -1) {
-            Sleep 50
-            BuyAtCurrentScrollRange(GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, maxBottomClicks)
-            return
-        }
-        Send "{WheelUp}"
-        Send "{WheelUp}"
-        Sleep 80
+        return -1
     }
+
+    foundY := ScanLowest()
+
+    if (foundY != -1) {
+        ; Green visible — step down until a red button appears directly below the deepest green
+        loop 40 {
+            ; Check one row below the deepest green for the red boundary colour
+            belowY := foundY + GEN_ROW_HEIGHT
+            if (belowY <= GEN_BTN_Y_BOT && ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+belowY), COLOR_RED, TOLERANCE))
+                break   ; red button right below deepest green — boundary found, buy here
+            Send "{WheelDown}"
+            Send "{WheelDown}"
+            Sleep 60
+            nextY := ScanLowest()
+            if (nextY = -1) {
+                ; Overshot — step back up so deepest green is visible again
+                Send "{WheelUp}"
+                Send "{WheelUp}"
+                Sleep 80
+                break
+            }
+            foundY := nextY
+        }
+    } else {
+        ; No green visible — scroll up until we find one
+        loop 30 {
+            Send "{WheelUp}"
+            Send "{WheelUp}"
+            Sleep 80
+            foundY := ScanLowest()
+            if (foundY != -1)
+                break
+        }
+    }
+
+    if (foundY = -1)
+        return
+    Sleep 50
+    BuyAtCurrentScrollRange(GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, maxBottomClicks)
 }
 
 ; =============================================
@@ -471,13 +502,17 @@ BuyClickUpgrades(scrollCount := 20, buyCount := 5) {
     while bought < buyCount {
         ; Buy current green until maxed (fast click — no wiggle needed for buy buttons)
         MouseMove WIN_X+CLICK_BTN_X, WIN_Y+clickY, 0
+        btnClicks := 0
         loop {
             if !ColorMatches(PixelGetColor(WIN_X+CLICK_BTN_X, WIN_Y+clickY), COLOR_GREEN, TOLERANCE)
+                break
+            if (btnClicks >= 10)
                 break
             SendInput "{LButton Down}"
             Sleep 15
             SendInput "{LButton Up}"
-            Sleep 15
+            Sleep 30
+            btnClicks++
         }
         bought++
         if (bought >= buyCount)
