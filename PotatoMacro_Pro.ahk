@@ -248,17 +248,18 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
     }
 }
 
-ScrollAndBuy(maxBottomClicks := 0, scrollFull := false) {
+ScrollAndBuy(maxBottomClicks := 0, scrollFull := false, scrollDown := 20) {
     global WIN_X, WIN_Y, SCROLL_X, SCROLL_Y, GEN_BTN_X, GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, GEN_ROW_HEIGHT, COLOR_GREEN, TOLERANCE
     ActivateTarget()
     Send "2"
     Sleep 600
-    MouseMove WIN_X+SCROLL_X, WIN_Y+SCROLL_Y, 0
-    Sleep 100
-
-    loop 20
-        Send "{WheelDown}"
-    Sleep 150
+    if (scrollDown > 0) {
+        MouseMove WIN_X+SCROLL_X, WIN_Y+SCROLL_Y, 0
+        Sleep 100
+        loop scrollDown
+            Send "{WheelDown}"
+        Sleep 150
+    }
 
     loop 30 {
         lowestGreenY := -1
@@ -277,7 +278,7 @@ ScrollAndBuy(maxBottomClicks := 0, scrollFull := false) {
         }
         Send "{WheelUp}"
         Send "{WheelUp}"
-        Sleep 150
+        Sleep 80
     }
 }
 
@@ -610,7 +611,7 @@ RunLoop() {
     while running {
         loopStart := A_TickCount
         SellGolden()
-        ScrollAndBuy(2)
+        ScrollAndBuy(2, false, 5)   ; after prestige, green gens are near top — only scroll down 5
         SellGolden()
         ScrollAndBuy(2)
         SellGolden()
