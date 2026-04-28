@@ -440,6 +440,8 @@ DoShop() {
         if SHOP_SKIP_ROCKS && IsRockByName(btn["x"], btn["y"])
             continue
         WiggleClick(btn["x"], btn["y"])
+        Sleep 200
+        WiggleClick(btn["x"], btn["y"])
         Sleep 300
     }
 }
