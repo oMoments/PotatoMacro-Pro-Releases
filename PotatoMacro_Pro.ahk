@@ -15,7 +15,6 @@ MODE        := A_Args.Length >= 5 ? A_Args[5] : "loop"
 
 cfg := ASSET_DIR "\PotatoConfig_Pro.ini"
 
-MACRO_MODE := IniRead(cfg, "Main", "MacroMode", "generators")
 
 WIN_W := Integer(IniRead(cfg, "Window", "ResW", 1920))
 WIN_H := Integer(IniRead(cfg, "Window", "ResH", 1080))
@@ -702,8 +701,5 @@ if (MODE = "shop") {
         }
     }
 } else {
-    if (MACRO_MODE = "clicks")
-        SetTimer RunLoopClicks, -1
-    else
-        SetTimer RunLoop, -1
+    SetTimer RunLoop, -1
 }
