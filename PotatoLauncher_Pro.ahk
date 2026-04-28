@@ -530,7 +530,7 @@ mainGui.Add("Text", "x30 y33 w22 h21 Border Center", "+")
 mainGui.Add("Text", "x57 y36 w900 c888BA8", "acts as a coordinate finder — click it, then click the spot in Roblox")
 
 ; ============= LEFT — GENERATORS =============
-mainGui.Add("GroupBox", "x5 y55 w510 h185", " Generators ")
+mainGui.Add("GroupBox", "x5 y55 w510 h140", " Generators ")
 CoordRowX("• Buy Button (col X)", 74,  "GenBtnX",  "any green buy button",             "Click any green buy button in the generators list")
 CoordRowY("• Y Top",              96,  "GenYTop",  "the highest buy button",            "Click the highest visible buy button")
 CoordRowY("• Y Bot",              118, "GenYBot",  "the lowest buy button",             "Click the lowest visible buy button")
@@ -538,9 +538,7 @@ mainGui.Add("Text",   "x10 y143 w175", "• Row Spacing:")
 fld["GenRowH"] := mainGui.Add("Edit", "x203 y140 w50 Number -Theme Background2A2A3E")
 mainGui.Add("Button", "x256 y139 w22 h21", "+").OnEvent("Click", MeasureRowH)
 mainGui.Add("Text",   "x283 y143 w227 c888BA8", "any buy button, then the one below it")
-CoordRow("• Scroll Area",       162, "ScrollX",    "ScrollY",    "anywhere in the generator list",   "Click anywhere inside the generator scroll list")
-CoordRow("• Scrollbar Top",     184, "ScrBarX",    "ScrBarTop",  "top of the scrollbar track",       "Click the very top of the scrollbar track (right side of gen list)")
-CoordRowY("• Scrollbar Bot Y",  206, "ScrBarBot",  "bottom of the scrollbar track",    "Click the very bottom of the scrollbar track")
+CoordRow("• Scroll Area", 162, "ScrollX", "ScrollY", "anywhere in the generator list", "Click anywhere inside the generator scroll list")
 
 ; ============= RIGHT — CLICK UPGRADES =============
 mainGui.Add("GroupBox", "x520 y55 w575 h165", " Click Upgrades ")
@@ -649,9 +647,6 @@ LoadSettings() {
     fld["GenRowH"].Value   := IniRead(CFG, "Generators", "RowHeight",     0)
     fld["ScrollX"].Value   := IniRead(CFG, "Generators", "ScrollX",       0)
     fld["ScrollY"].Value   := IniRead(CFG, "Generators", "ScrollY",       0)
-    fld["ScrBarX"].Value   := IniRead(CFG, "Generators", "ScrBarX",       0)
-    fld["ScrBarTop"].Value := IniRead(CFG, "Generators", "ScrBarTop",     0)
-    fld["ScrBarBot"].Value := IniRead(CFG, "Generators", "ScrBarBot",     0)
     fld["PresNowX"].Value  := IniRead(CFG, "Prestige",   "NowX",          0)
     fld["PresNowY"].Value  := IniRead(CFG, "Prestige",   "NowY",          0)
     fld["PresConX"].Value  := IniRead(CFG, "Prestige",   "ConfirmX",      0)
@@ -728,9 +723,6 @@ SaveSettings(*) {
     IniWrite fld["GenRowH"].Value,   CFG, "Generators", "RowHeight"
     IniWrite fld["ScrollX"].Value,   CFG, "Generators", "ScrollX"
     IniWrite fld["ScrollY"].Value,   CFG, "Generators", "ScrollY"
-    IniWrite fld["ScrBarX"].Value,   CFG, "Generators", "ScrBarX"
-    IniWrite fld["ScrBarTop"].Value, CFG, "Generators", "ScrBarTop"
-    IniWrite fld["ScrBarBot"].Value, CFG, "Generators", "ScrBarBot"
     IniWrite fld["PresNowX"].Value,  CFG, "Prestige",   "NowX"
     IniWrite fld["PresNowY"].Value,  CFG, "Prestige",   "NowY"
     IniWrite fld["PresConX"].Value,  CFG, "Prestige",   "ConfirmX"

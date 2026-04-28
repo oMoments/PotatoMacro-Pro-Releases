@@ -26,9 +26,6 @@ GEN_BTN_Y_BOT  := Integer(IniRead(cfg, "Generators", "YBot",       930))
 GEN_ROW_HEIGHT := Integer(IniRead(cfg, "Generators", "RowHeight",    20))
 SCROLL_X       := Integer(IniRead(cfg, "Generators", "ScrollX",     948))
 SCROLL_Y       := Integer(IniRead(cfg, "Generators", "ScrollY",     583))
-GEN_SCRBAR_X   := Integer(IniRead(cfg, "Generators", "ScrBarX",       0))
-GEN_SCRBAR_TOP := Integer(IniRead(cfg, "Generators", "ScrBarTop",     0))
-GEN_SCRBAR_BOT := Integer(IniRead(cfg, "Generators", "ScrBarBot",     0))
 
 CLICK_BTN_X      := Integer(IniRead(cfg, "ClickUpgrades", "BtnX",      0))
 CLICK_BTN_Y_TOP  := Integer(IniRead(cfg, "ClickUpgrades", "YTop",      0))
@@ -253,89 +250,57 @@ BuyAtCurrentScrollRange(yTop, yBot, maxBottomClicks := 0) {
 }
 
 ScrollAndBuy(maxBottomClicks := 0, scrollFull := false, scrollDown := 20) {
-    global WIN_X, WIN_Y, SCROLL_X, SCROLL_Y, GEN_BTN_X, GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, GEN_ROW_HEIGHT
-    global GEN_SCRBAR_X, GEN_SCRBAR_TOP, GEN_SCRBAR_BOT, COLOR_GREEN, COLOR_RED, TOLERANCE
+    global WIN_X, WIN_Y, SCROLL_X, SCROLL_Y, GEN_BTN_X, GEN_BTN_Y_TOP, GEN_BTN_Y_BOT, GEN_ROW_HEIGHT, COLOR_GREEN, COLOR_RED, TOLERANCE
     ActivateTarget()
     Send "2"
     Sleep 600
+    MouseMove WIN_X+SCROLL_X, WIN_Y+SCROLL_Y, 0
+    Sleep 100
+    if (scrollDown > 0) {
+        loop scrollDown
+            Send "{WheelDown}"
+        Sleep 150
+    }
 
-    if (GEN_SCRBAR_X > 0) {
-        ; ── Scrollbar drag mode ──────────────────────────────────────────
-        ; Click-hold at top of scrollbar track (resets list to top),
-        ; drag down until a red buy button appears in the generator list.
-        MouseMove WIN_X+GEN_SCRBAR_X, WIN_Y+GEN_SCRBAR_TOP, 0
-        Sleep 50
-        SendInput "{LButton Down}"
-        Sleep 80
+    ScanLowest() {
+        local y := GEN_BTN_Y_BOT
+        while (y >= GEN_BTN_Y_TOP) {
+            if ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE)
+                return y
+            y -= GEN_ROW_HEIGHT
+        }
+        return -1
+    }
 
-        dragY := GEN_SCRBAR_TOP
-        loop {
-            dragY += 3
-            if (dragY > GEN_SCRBAR_BOT)
+    foundY := ScanLowest()
+    if (foundY != -1) {
+        loop 40 {
+            belowY := foundY + GEN_ROW_HEIGHT
+            if (belowY <= GEN_BTN_Y_BOT && ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+belowY), COLOR_RED, TOLERANCE))
                 break
-            MouseMove WIN_X+GEN_SCRBAR_X, WIN_Y+dragY, 0
-            Sleep 10
-            ; Check bottom few rows of gen list for a red (unaffordable) button
-            loop 4 {
-                cy := GEN_BTN_Y_BOT - (A_Index - 1) * GEN_ROW_HEIGHT
-                if (cy < GEN_BTN_Y_TOP)
-                    break
-                if ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+cy), COLOR_RED, TOLERANCE)
-                    Break 2   ; red found — boundary reached, stop dragging
-            }
-        }
-        SendInput "{LButton Up}"
-        Sleep 80
-    } else {
-        ; ── Wheel fallback (no scrollbar coords set) ─────────────────────
-        MouseMove WIN_X+SCROLL_X, WIN_Y+SCROLL_Y, 0
-        Sleep 100
-        if (scrollDown > 0) {
-            loop scrollDown
-                Send "{WheelDown}"
-            Sleep 150
-        }
-
-        ScanLowest() {
-            local y := GEN_BTN_Y_BOT
-            while (y >= GEN_BTN_Y_TOP) {
-                if ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+y), COLOR_GREEN, TOLERANCE)
-                    return y
-                y -= GEN_ROW_HEIGHT
-            }
-            return -1
-        }
-
-        foundY := ScanLowest()
-        if (foundY != -1) {
-            loop 40 {
-                belowY := foundY + GEN_ROW_HEIGHT
-                if (belowY <= GEN_BTN_Y_BOT && ColorMatches(PixelGetColor(WIN_X+GEN_BTN_X, WIN_Y+belowY), COLOR_RED, TOLERANCE))
-                    break
-                Send "{WheelDown}"
-                Send "{WheelDown}"
-                Sleep 60
-                nextY := ScanLowest()
-                if (nextY = -1) {
-                    Send "{WheelUp}"
-                    Send "{WheelUp}"
-                    Sleep 80
-                    break
-                }
-                foundY := nextY
-            }
-        } else {
-            loop 30 {
+            Send "{WheelDown}"
+            Send "{WheelDown}"
+            Sleep 60
+            nextY := ScanLowest()
+            if (nextY = -1) {
                 Send "{WheelUp}"
                 Send "{WheelUp}"
                 Sleep 80
-                foundY := ScanLowest()
-                if (foundY != -1)
-                    break
+                break
             }
-            if (foundY = -1)
-                return
+            foundY := nextY
         }
+    } else {
+        loop 30 {
+            Send "{WheelUp}"
+            Send "{WheelUp}"
+            Sleep 80
+            foundY := ScanLowest()
+            if (foundY != -1)
+                break
+        }
+        if (foundY = -1)
+            return
     }
 
     Sleep 50
